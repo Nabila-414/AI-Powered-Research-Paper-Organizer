@@ -1,25 +1,17 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package com.mycompany.papermanager;
+import gui.LoginForm;
+
 import javax.swing.*;
 
 /**
- * Entry point for the Research Paper Management application.
+ * Main.java
+ * ----------
+ * Entry point to run and demo ONLY Member 1's part (User Authentication
+ * & Profile module) on its own. When the full team project is merged,
+ * the main team Main class will call LoginForm the same way after
+ * splash/setup, so this file also works as a reference for that.
  */
 public class Main {
     public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            // fall back to default look and feel
-        }
-
-        SwingUtilities.invokeLater(() -> {
-            PaperController controller = new PaperController();
-            PaperListForm mainForm = new PaperListForm(controller);
-            mainForm.setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new LoginForm().setVisible(true));
     }
 }

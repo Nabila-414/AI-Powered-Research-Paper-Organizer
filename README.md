@@ -921,8 +921,6 @@ AI-Powered Research Paper Organizer
 CSE222 — Object-Oriented Programming Lab
 
 
-**Member 3**
-
 @@ -0,0 +1,80 @@
 # AI Powered Research Paper Organizer — Member 3 Module
 ## Search & Organization (Java + Java Swing)

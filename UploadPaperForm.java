@@ -51,8 +51,7 @@ public class UploadPaperForm extends JDialog {
         addRow(formPanel, gbc, row++, "Title:*", titleField);
         addRow(formPanel, gbc, row++, "Author:*", authorField);
         addRow(formPanel, gbc, row++, "Year:", yearField);
-        addRow(formPanel, gbc, row++, "Category:", categoryField);
-
+        addRow(formPanel, gbc, row++, "Venue:", categoryField);
         gbc.gridx = 0; gbc.gridy = row; gbc.anchor = GridBagConstraints.NORTHWEST;
         formPanel.add(new JLabel("Abstract:"), gbc);
         gbc.gridx = 1; gbc.gridy = row++;

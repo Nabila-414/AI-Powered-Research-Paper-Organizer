@@ -25,6 +25,22 @@ public class PaperManager {
         nextId = 1;
         ensureDirs();
         loadPapers();
+        if (papers.isEmpty()) {
+            seedSampleData();
+        }
+    }
+
+    /** Adds a few sample papers on first run so the app isn't empty. Safe to remove later. */
+    private void seedSampleData() {
+        try {
+            addPaper("Deep Learning for NLP Applications", "J. Smith, A. Lee", "2023", "IEEE Access", "", null);
+            addPaper("A Survey on Blockchain Technology", "R. Kumar, P. Singh", "2022", "Springer", "", null);
+            addPaper("Machine Learning in Healthcare", "M. Brown, T. White", "2021", "Elsevier", "", null);
+            addPaper("Quantum Computing: An Overview", "L. Johnson", "2020", "ACM Computing Surveys", "", null);
+            addPaper("Internet of Things Security Challenges", "S. Ahmad, K. Khan", "2023", "IEEE IoT Journal", "", null);
+        } catch (IOException e) {
+            System.err.println("Failed to seed sample data: " + e.getMessage());
+        }
     }
 
     private void ensureDirs() {

@@ -1,26 +1,25 @@
-package com.mycompany.mavenproject1;
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.papermanager;
+import javax.swing.*;
 
-public class Mavenproject1 {
-
+/**
+ * Entry point for the Research Paper Management application.
+ */
+public class Main {
     public static void main(String[] args) {
-        System.out.println("=================================================");
-        System.out.println("      AI-Powered Research Paper Organizer");
-        System.out.println("=================================================");
-        System.out.println();
-        System.out.println("Project Status : Initialized");
-        System.out.println("Version        : 0.1");
-        System.out.println("Platform       : Java Desktop Application");
-        System.out.println();
-        System.out.println("Core Features:");
-        System.out.println("1. User Authentication");
-        System.out.println("2. Research Paper Management");
-        System.out.println("3. Research Notes");
-        System.out.println("4. Citation Generator");
-        System.out.println("5. AI Topic Recommendation");
-        System.out.println();
-        System.out.println("Development Started Successfully!");
-        System.out.println();
-        System.out.println("Team Project - Object Oriented Programming");
-        System.out.println("===============================================");
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            // fall back to default look and feel
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            PaperController controller = new PaperController();
+            PaperListForm mainForm = new PaperListForm(controller);
+            mainForm.setVisible(true);
+        });
     }
 }

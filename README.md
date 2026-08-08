@@ -1002,3 +1002,70 @@ Add a `.gitignore` with:
 bin/
 *.class
 ```
+## 👤 Member 4 — AI Features
+
+The AI Features module is responsible for providing intelligent assistance to users while reading, analyzing, and managing research papers. It aims to reduce the time required for understanding papers, extracting useful information, generating citations, and discovering relevant research.
+
+### 🤖 AI-Powered Features
+
+#### 1. AI Summary
+Provides a concise summary of a research paper so that users can quickly understand its main ideas, objectives, methodology, and findings.
+
+#### 2. AI Keyword Extraction
+Automatically identifies important keywords and key concepts from a research paper. This helps users understand the main topics and improves paper organization and searching.
+
+#### 3. AI Citation Generator
+Generates properly formatted citations for research papers. The system is planned to support:
+- APA
+- IEEE
+
+#### 4. AI Paper Recommendation
+Recommends potentially relevant research papers based on the user's selected papers, topics, keywords, or research interests.
+
+### 🖥️ AI Module GUI
+
+The AI Features module includes the following user-interface components:
+
+- **AI Assistant Dashboard** — Central interface for accessing AI-powered research tools.
+- **AI Summary Panel** — Interface for generating and displaying paper summaries.
+- **Citation Panel** — Interface for generating and viewing formatted citations.
+- **Keyword Extraction Interface** — Interface for displaying extracted keywords.
+- **Paper Recommendation Interface** — Interface for displaying recommended research papers.
+
+### 🧩 Main Classes
+
+The AI module is organized using separate classes for different responsibilities:
+
+- `AIService` — Handles communication with the AI-related functionality.
+- `SummaryGenerator` — Responsible for generating research paper summaries.
+- `CitationGenerator` — Responsible for generating APA and IEEE citations.
+- `RecommendationEngine` — Responsible for recommending relevant research papers.
+
+### 📌 Current Progress
+
+- Designed the **AI Assistant Dashboard GUI** using Java Swing and NetBeans.
+- Created the navigation structure for AI-related features.
+- Added buttons and interface elements for AI Summary, Keyword Extraction, Citation Generation, and Paper Recommendation.
+- Integrated the AI module into the overall Research Paper Organizer dashboard structure.
+
+### 🚀 Future Improvements
+
+- Improve AI-generated summaries for different types of research papers.
+- Add more citation styles.
+- Improve keyword extraction accuracy.
+- Develop a more personalized paper recommendation system.
+- Add advanced AI-based research assistance.
+- Improve interaction between the AI module and the research paper database.
+
+### 🛠️ Technologies Used
+
+- Java
+- Java Swing
+- Object-Oriented Programming (OOP)
+- NetBeans IDE
+- Git & GitHub
+- AI-based processing
+
+### 🎯 Contribution
+
+The main contribution of Member 4 is the design and development of the **AI-powered research assistance module**, including its GUI structure, AI feature organization, and supporting Java classes.

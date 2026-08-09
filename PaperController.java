@@ -7,11 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Controller layer: validates input coming from the GUI and delegates
- * actual persistence work to PaperManager. GUI forms should only talk
- * to this class, never to PaperManager directly.
- */
 public class PaperController {
 
     private final PaperManager manager;
@@ -28,28 +23,24 @@ public class PaperController {
         return manager.getPaperById(id);
     }
 
-    /** Returns null on success, or an error message on validation/IO failure. */
-    public String addPaper(String title, String author, String year, String category,
-                            String keywords, String abstractText, File pdf) {
-        String error = validate(title, author);
+    public String addPaper(String title, String author, String year, String category, String keywords,
+                            String abstractText, File pdf) {
+        String error = validate(title, author, year, category);
         if (error != null) return error;
         try {
-            manager.addPaper(title.trim(), author.trim(), safe(year), safe(category),
-                    safe(keywords), safe(abstractText), pdf);
+            manager.addPaper(title.trim(), author.trim(), safe(year), category.trim(), safe(keywords), safe(abstractText), pdf);
             return null;
         } catch (IOException e) {
             return "Failed to save PDF file: " + e.getMessage();
         }
     }
 
-    /** Returns null on success, or an error message on validation/IO failure. */
-    public String editPaper(int id, String title, String author, String year, String category,
-                             String keywords, String abstractText, File pdf) {
-        String error = validate(title, author);
+    public String editPaper(int id, String title, String author, String year, String category, String keywords,
+                             String abstractText, File pdf) {
+        String error = validate(title, author, year, category);
         if (error != null) return error;
         try {
-            boolean ok = manager.editPaper(id, title.trim(), author.trim(), safe(year), safe(category),
-                    safe(keywords), safe(abstractText), pdf);
+            boolean ok = manager.editPaper(id, title.trim(), author.trim(), safe(year), category.trim(), safe(keywords), safe(abstractText), pdf);
             return ok ? null : "Paper not found (it may have been deleted).";
         } catch (IOException e) {
             return "Failed to save PDF file: " + e.getMessage();
@@ -60,7 +51,6 @@ public class PaperController {
         return manager.deletePaper(id);
     }
 
-    /** Attempts to open the paper's PDF with the system's default viewer. */
     public boolean openPdf(int id) {
         Paper p = manager.getPaperById(id);
         if (p == null || !p.hasPdf()) return false;
@@ -78,9 +68,11 @@ public class PaperController {
         return false;
     }
 
-    private String validate(String title, String author) {
+    private String validate(String title, String author, String year, String category) {
         if (title == null || title.trim().isEmpty()) return "Title is required.";
-        if (author == null || author.trim().isEmpty()) return "Author is required.";
+        if (author == null || author.trim().isEmpty()) return "Authors is required.";
+        if (year == null || year.trim().isEmpty()) return "Published Year is required.";
+        if (category == null || category.trim().isEmpty()) return "Venue is required.";
         return null;
     }
 

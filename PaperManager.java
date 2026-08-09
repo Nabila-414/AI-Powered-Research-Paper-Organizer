@@ -1,16 +1,12 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.mycompany.papermanager;
-
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
-/**
- * Handles persistence and CRUD operations for Paper objects. Papers are
- * serialized to disk; uploaded PDFs are copied into a local repository folder.
- */
 public class PaperManager {
 
     private List<Paper> papers;
@@ -30,14 +26,18 @@ public class PaperManager {
         }
     }
 
-    /** Adds a few sample papers on first run so the app isn't empty. Safe to remove later. */
     private void seedSampleData() {
         try {
-            addPaper("Deep Learning for NLP Applications", "J. Smith, A. Lee", "2023", "IEEE Access", "", null);
-            addPaper("A Survey on Blockchain Technology", "R. Kumar, P. Singh", "2022", "Springer", "", null);
-            addPaper("Machine Learning in Healthcare", "M. Brown, T. White", "2021", "Elsevier", "", null);
-            addPaper("Quantum Computing: An Overview", "L. Johnson", "2020", "ACM Computing Surveys", "", null);
-            addPaper("Internet of Things Security Challenges", "S. Ahmad, K. Khan", "2023", "IEEE IoT Journal", "", null);
+            addPaper("Deep Learning for NLP Applications", "J. Smith, A. Lee", "2023", "IEEE Access",
+                    "deep learning, NLP, transformers", "", null);
+            addPaper("A Survey on Blockchain Technology", "R. Kumar, P. Singh", "2022", "Springer",
+                    "blockchain, distributed ledger, security", "", null);
+            addPaper("Machine Learning in Healthcare", "M. Brown, T. White", "2021", "Elsevier",
+                    "machine learning, healthcare, diagnostics", "", null);
+            addPaper("Quantum Computing: An Overview", "L. Johnson", "2020", "ACM Computing Surveys",
+                    "quantum computing, qubits, algorithms", "", null);
+            addPaper("Internet of Things Security Challenges", "S. Ahmad, K. Khan", "2023", "IEEE IoT Journal",
+                    "IoT, security, privacy", "", null);
         } catch (IOException e) {
             System.err.println("Failed to seed sample data: " + e.getMessage());
         }
@@ -48,36 +48,29 @@ public class PaperManager {
         new File(REPO_DIR).mkdirs();
     }
 
-    /**
-     * Adds a new paper. sourcePdf may be null if no file was chosen.
-     */
-    public Paper addPaper(String title, String author, String year, String category,
-            String abstractText, File sourcePdf) throws IOException {
+    public Paper addPaper(String title, String author, String year, String category, String keywords,
+                          String abstractText, File sourcePdf) throws IOException {
         String storedPath = null;
         if (sourcePdf != null) {
             storedPath = copyPdfToRepo(sourcePdf, nextId);
         }
-        Paper p = new Paper(nextId, title, author, year, category, abstractText, storedPath);
+        Paper p = new Paper(nextId, title, author, year, category, keywords, abstractText, storedPath);
         papers.add(p);
         nextId++;
         savePapers();
         return p;
     }
 
-    /**
-     * Edits an existing paper. newPdf may be null to keep the existing file.
-     */
-    public boolean editPaper(int id, String title, String author, String year, String category,
-            String abstractText, File newPdf) throws IOException {
+    public boolean editPaper(int id, String title, String author, String year, String category, String keywords,
+                              String abstractText, File newPdf) throws IOException {
         Paper p = getPaperById(id);
-        if (p == null) {
-            return false;
-        }
+        if (p == null) return false;
 
         p.setTitle(title);
         p.setAuthor(author);
         p.setYear(year);
         p.setCategory(category);
+        p.setKeywords(keywords);
         p.setAbstractText(abstractText);
 
         if (newPdf != null) {
@@ -90,9 +83,7 @@ public class PaperManager {
 
     public boolean deletePaper(int id) {
         Paper p = getPaperById(id);
-        if (p == null) {
-            return false;
-        }
+        if (p == null) return false;
         if (p.hasPdf()) {
             File f = new File(p.getPdfPath());
             if (f.exists()) {
@@ -106,9 +97,7 @@ public class PaperManager {
 
     public Paper getPaperById(int id) {
         for (Paper p : papers) {
-            if (p.getId() == id) {
-                return p;
-            }
+            if (p.getId() == id) return p;
         }
         return null;
     }
@@ -127,9 +116,7 @@ public class PaperManager {
     @SuppressWarnings("unchecked")
     private void loadPapers() {
         File f = new File(DATA_FILE);
-        if (!f.exists()) {
-            return;
-        }
+        if (!f.exists()) return;
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
             papers = (List<Paper>) ois.readObject();
             for (Paper p : papers) {

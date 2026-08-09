@@ -1,10 +1,8 @@
-
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.mycompany.papermanager;
-
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
@@ -100,7 +98,6 @@ public class PaperListForm extends JFrame {
         sidebar.add(buildProfileBlock());
         sidebar.add(Box.createVerticalStrut(20));
         sidebar.add(buildNavButton("Paper List", true, this::refreshTable));
-        sidebar.add(buildNavButton("Add Paper", false, this::onAdd));
         sidebar.add(buildNavButton("Edit Paper", false, this::onEdit));
         sidebar.add(buildNavButton("Delete Paper", false, this::onDelete));
         sidebar.add(buildNavButton("View Paper Details", false, this::onViewDetails));
@@ -112,7 +109,7 @@ public class PaperListForm extends JFrame {
         sep.setMaximumSize(new Dimension(1000, 1));
         sidebar.add(sep);
         sidebar.add(Box.createVerticalStrut(10));
-        sidebar.add(buildNavButton("Logout", false, this::onLogout));
+        sidebar.add(buildNavButton("Logout", false, this::onLogout, new LogoutIcon(new Color(0xC7, 0xD0, 0xE0))));
 
         return sidebar;
     }
@@ -162,7 +159,11 @@ public class PaperListForm extends JFrame {
     }
 
     private JButton buildNavButton(String text, boolean selected, Runnable action) {
-        JButton btn = new JButton("   " + text);
+        return buildNavButton(text, selected, action, null);
+    }
+
+    private JButton buildNavButton(String text, boolean selected, Runnable action, Icon icon) {
+        JButton btn = new JButton(icon != null ? text : "   " + text);
         btn.setAlignmentX(Component.LEFT_ALIGNMENT);
         btn.setMaximumSize(new Dimension(1000, 42));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
@@ -171,6 +172,12 @@ public class PaperListForm extends JFrame {
         btn.setBorderPainted(false);
         btn.setOpaque(true);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        if (icon != null) {
+            btn.setIcon(icon);
+            btn.setIconTextGap(10);
+            btn.setHorizontalTextPosition(SwingConstants.RIGHT);
+            btn.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+        }
         if (selected) {
             btn.setBackground(SIDEBAR_SELECTED);
             btn.setForeground(Color.WHITE);
@@ -234,7 +241,7 @@ public class PaperListForm extends JFrame {
         List<Paper> papers = controller.getAllPapers();
         for (Paper p : papers) {
             tableModel.addRow(new Object[]{
-                p.getId(), p.getTitle(), p.getAuthor(), p.getYear(), p.getCategory(), ""
+                    p.getId(), p.getTitle(), p.getAuthor(), p.getYear(), p.getCategory(), ""
             });
         }
         totalLabel.setText("Total Papers: " + papers.size());
@@ -242,9 +249,7 @@ public class PaperListForm extends JFrame {
 
     private int getSelectedId() {
         int row = table.getSelectedRow();
-        if (row == -1) {
-            return -1;
-        }
+        if (row == -1) return -1;
         return (int) tableModel.getValueAt(row, 0);
     }
 
@@ -329,10 +334,9 @@ public class PaperListForm extends JFrame {
     }
 
     private class StripedCellRenderer extends DefaultTableCellRenderer {
-
         @Override
         public Component getTableCellRendererComponent(JTable tbl, Object value, boolean isSelected,
-                boolean hasFocus, int row, int column) {
+                                                         boolean hasFocus, int row, int column) {
             Component c = super.getTableCellRendererComponent(tbl, value, isSelected, hasFocus, row, column);
             setBorder(BorderFactory.createEmptyBorder(0, 14, 0, 14));
             if (!isSelected) {
@@ -344,7 +348,6 @@ public class PaperListForm extends JFrame {
     }
 
     private static class SolidButton extends JButton {
-
         private final Color fill;
 
         SolidButton(String text, Color fill, Color textColor) {
@@ -370,12 +373,37 @@ public class PaperListForm extends JFrame {
         }
     }
 
-    private enum IconType {
-        VIEW, EDIT, DELETE
+    private enum IconType { VIEW, EDIT, DELETE }
+
+    private static class LogoutIcon implements Icon {
+        private final Color color;
+
+        LogoutIcon(Color color) {
+            this.color = color;
+        }
+
+        @Override
+        public int getIconWidth() { return 16; }
+
+        @Override
+        public int getIconHeight() { return 16; }
+
+        @Override
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.translate(x, y);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(color);
+            g2.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2.draw(new RoundRectangle2D.Double(2, 1, 8, 14, 2, 2));
+            g2.draw(new Line2D.Double(7, 8, 15, 8));
+            g2.draw(new Line2D.Double(11.5, 4.5, 15, 8));
+            g2.draw(new Line2D.Double(11.5, 11.5, 15, 8));
+            g2.dispose();
+        }
     }
 
     private static class IconButton extends JButton {
-
         private final IconType type;
         private final Color color;
 
@@ -397,10 +425,10 @@ public class PaperListForm extends JFrame {
             int w = getWidth(), h = getHeight();
 
             g2.setColor(Color.WHITE);
-            g2.fillOval(1, 1, w - 3, h - 3);
+            g2.fillRoundRect(1, 1, w - 3, h - 3, 7, 7);
             g2.setColor(color);
             g2.setStroke(new BasicStroke(1.3f));
-            g2.drawOval(1, 1, w - 3, h - 3);
+            g2.drawRoundRect(1, 1, w - 3, h - 3, 7, 7);
 
             int cx = w / 2, cy = h / 2;
             g2.setStroke(new BasicStroke(1.6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
@@ -435,7 +463,6 @@ public class PaperListForm extends JFrame {
     }
 
     private class ActionsPanelFactory {
-
         JPanel createPanel(ActionListener onView, ActionListener onEdit, ActionListener onDelete) {
             JPanel panel = new JPanel(new GridLayout(1, 3, 4, 0));
             panel.setOpaque(false);
@@ -456,7 +483,6 @@ public class PaperListForm extends JFrame {
     }
 
     private class ActionsRenderer implements TableCellRenderer {
-
         private final ActionsPanelFactory factory;
 
         ActionsRenderer(ActionsPanelFactory factory) {
@@ -465,18 +491,14 @@ public class PaperListForm extends JFrame {
 
         @Override
         public Component getTableCellRendererComponent(JTable tbl, Object value, boolean isSelected,
-                boolean hasFocus, int row, int column) {
-            JPanel panel = factory.createPanel(e -> {
-            }, e -> {
-            }, e -> {
-            });
+                                                         boolean hasFocus, int row, int column) {
+            JPanel panel = factory.createPanel(e -> {}, e -> {}, e -> {});
             panel.setBackground(row % 2 == 0 ? Color.WHITE : ROW_ALT_BG);
             return panel;
         }
     }
 
     private class ActionsEditor extends AbstractCellEditor implements TableCellEditor {
-
         private final ActionsPanelFactory factory;
         private JPanel panel;
         private int currentRow;
@@ -489,18 +511,9 @@ public class PaperListForm extends JFrame {
         public Component getTableCellEditorComponent(JTable tbl, Object value, boolean isSelected, int row, int column) {
             currentRow = row;
             panel = factory.createPanel(
-                    e -> {
-                        fireEditingStopped();
-                        viewRow(idForRow(currentRow));
-                    },
-                    e -> {
-                        fireEditingStopped();
-                        editRow(idForRow(currentRow));
-                    },
-                    e -> {
-                        fireEditingStopped();
-                        deleteRow(idForRow(currentRow));
-                    }
+                    e -> { fireEditingStopped(); viewRow(idForRow(currentRow)); },
+                    e -> { fireEditingStopped(); editRow(idForRow(currentRow)); },
+                    e -> { fireEditingStopped(); deleteRow(idForRow(currentRow)); }
             );
             panel.setBackground(row % 2 == 0 ? Color.WHITE : ROW_ALT_BG);
             return panel;

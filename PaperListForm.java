@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.mycompany.papermanager;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
@@ -241,7 +242,7 @@ public class PaperListForm extends JFrame {
         List<Paper> papers = controller.getAllPapers();
         for (Paper p : papers) {
             tableModel.addRow(new Object[]{
-                    p.getId(), p.getTitle(), p.getAuthor(), p.getYear(), p.getCategory(), ""
+                p.getId(), p.getTitle(), p.getAuthor(), p.getYear(), p.getCategory(), ""
             });
         }
         totalLabel.setText("Total Papers: " + papers.size());
@@ -249,7 +250,9 @@ public class PaperListForm extends JFrame {
 
     private int getSelectedId() {
         int row = table.getSelectedRow();
-        if (row == -1) return -1;
+        if (row == -1) {
+            return -1;
+        }
         return (int) tableModel.getValueAt(row, 0);
     }
 
@@ -334,9 +337,10 @@ public class PaperListForm extends JFrame {
     }
 
     private class StripedCellRenderer extends DefaultTableCellRenderer {
+
         @Override
         public Component getTableCellRendererComponent(JTable tbl, Object value, boolean isSelected,
-                                                         boolean hasFocus, int row, int column) {
+                boolean hasFocus, int row, int column) {
             Component c = super.getTableCellRendererComponent(tbl, value, isSelected, hasFocus, row, column);
             setBorder(BorderFactory.createEmptyBorder(0, 14, 0, 14));
             if (!isSelected) {
@@ -348,6 +352,7 @@ public class PaperListForm extends JFrame {
     }
 
     private static class SolidButton extends JButton {
+
         private final Color fill;
 
         SolidButton(String text, Color fill, Color textColor) {
@@ -373,9 +378,12 @@ public class PaperListForm extends JFrame {
         }
     }
 
-    private enum IconType { VIEW, EDIT, DELETE }
+    private enum IconType {
+        VIEW, EDIT, DELETE
+    }
 
     private static class LogoutIcon implements Icon {
+
         private final Color color;
 
         LogoutIcon(Color color) {
@@ -383,10 +391,14 @@ public class PaperListForm extends JFrame {
         }
 
         @Override
-        public int getIconWidth() { return 16; }
+        public int getIconWidth() {
+            return 16;
+        }
 
         @Override
-        public int getIconHeight() { return 16; }
+        public int getIconHeight() {
+            return 16;
+        }
 
         @Override
         public void paintIcon(Component c, Graphics g, int x, int y) {
@@ -404,6 +416,7 @@ public class PaperListForm extends JFrame {
     }
 
     private static class IconButton extends JButton {
+
         private final IconType type;
         private final Color color;
 
@@ -463,6 +476,7 @@ public class PaperListForm extends JFrame {
     }
 
     private class ActionsPanelFactory {
+
         JPanel createPanel(ActionListener onView, ActionListener onEdit, ActionListener onDelete) {
             JPanel panel = new JPanel(new GridLayout(1, 3, 4, 0));
             panel.setOpaque(false);
@@ -483,6 +497,7 @@ public class PaperListForm extends JFrame {
     }
 
     private class ActionsRenderer implements TableCellRenderer {
+
         private final ActionsPanelFactory factory;
 
         ActionsRenderer(ActionsPanelFactory factory) {
@@ -491,14 +506,18 @@ public class PaperListForm extends JFrame {
 
         @Override
         public Component getTableCellRendererComponent(JTable tbl, Object value, boolean isSelected,
-                                                         boolean hasFocus, int row, int column) {
-            JPanel panel = factory.createPanel(e -> {}, e -> {}, e -> {});
+                boolean hasFocus, int row, int column) {
+            JPanel panel = factory.createPanel(e -> {
+            }, e -> {
+            }, e -> {
+            });
             panel.setBackground(row % 2 == 0 ? Color.WHITE : ROW_ALT_BG);
             return panel;
         }
     }
 
     private class ActionsEditor extends AbstractCellEditor implements TableCellEditor {
+
         private final ActionsPanelFactory factory;
         private JPanel panel;
         private int currentRow;
@@ -511,9 +530,18 @@ public class PaperListForm extends JFrame {
         public Component getTableCellEditorComponent(JTable tbl, Object value, boolean isSelected, int row, int column) {
             currentRow = row;
             panel = factory.createPanel(
-                    e -> { fireEditingStopped(); viewRow(idForRow(currentRow)); },
-                    e -> { fireEditingStopped(); editRow(idForRow(currentRow)); },
-                    e -> { fireEditingStopped(); deleteRow(idForRow(currentRow)); }
+                    e -> {
+                        fireEditingStopped();
+                        viewRow(idForRow(currentRow));
+                    },
+                    e -> {
+                        fireEditingStopped();
+                        editRow(idForRow(currentRow));
+                    },
+                    e -> {
+                        fireEditingStopped();
+                        deleteRow(idForRow(currentRow));
+                    }
             );
             panel.setBackground(row % 2 == 0 ? Color.WHITE : ROW_ALT_BG);
             return panel;

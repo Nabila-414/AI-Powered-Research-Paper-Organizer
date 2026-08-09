@@ -29,16 +29,17 @@ public class PaperDetailsForm extends JDialog {
         addField(panel, gbc, row++, "Title:", paper.getTitle());
         addField(panel, gbc, row++, "Author:", paper.getAuthor());
         addField(panel, gbc, row++, "Year:", paper.getYear());
-        addField(panel, gbc, row++, "Category:", paper.getCategory());
+        addField(panel, gbc, row++, "Venue:", paper.getCategory());
+        addField(panel, gbc, row++, "Keywords:", paper.getKeywords());
         addField(panel, gbc, row++, "Date Added:", paper.getDateAdded());
         addField(panel, gbc, row++, "PDF Attached:", paper.hasPdf() ? "Yes" : "No");
 
         gbc.gridx = 0;
         gbc.gridy = row;
-        panel.add(new JLabel("Keywords:"), gbc);
+        panel.add(new JLabel("Abstract:"), gbc);
         JTextArea abstractArea = new JTextArea(
                 paper.getAbstractText() == null || paper.getAbstractText().isEmpty()
-                ? "(no keywords provided)" : paper.getAbstractText());
+                ? "(no abstract provided)" : paper.getAbstractText());
         abstractArea.setLineWrap(true);
         abstractArea.setWrapStyleWord(true);
         abstractArea.setEditable(false);

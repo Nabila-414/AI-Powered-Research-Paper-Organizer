@@ -383,3 +383,137 @@ public class UploadPaperForm extends JDialog {
             JOptionPane.showMessageDialog(this, "Please choose a PDF file.", "Cannot Upload", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        String error;
+        if (existingPaper == null) {
+            error = controller.addPaper(title, author, year, category, keywords, abstractText, selectedPdf);
+        } else {
+            error = controller.editPaper(existingPaper.getId(), title, author, year, category, keywords, abstractText, selectedPdf);
+        }
+
+        if (error != null) {
+            JOptionPane.showMessageDialog(this, error, "Cannot Upload", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JOptionPane.showMessageDialog(this,
+                existingPaper == null ? "Paper uploaded successfully." : "Paper updated successfully.",
+                "Success", JOptionPane.INFORMATION_MESSAGE);
+        dispose();
+    }
+
+    // ---------- Placeholder-capable text field ----------
+
+    private static class PlaceholderField extends JTextField {
+        private final String placeholder;
+
+        PlaceholderField(String placeholder) {
+            this.placeholder = placeholder;
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (getText().isEmpty() && !isFocusOwner()) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(TEXT_MUTED);
+                g2.setFont(getFont());
+                Insets ins = getInsets();
+                FontMetrics fm = g2.getFontMetrics();
+                int y = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
+                g2.drawString(placeholder, ins.left, y);
+                g2.dispose();
+            }
+        }
+    }
+
+    // ---------- Self-painted solid button (reliable background on Windows L&F) ----------
+
+    private static class SolidButton extends JButton {
+        private final Color fill;
+
+        SolidButton(String text, Color fill, Color textColor, Icon icon) {
+            super(text, icon);
+            this.fill = fill;
+            setForeground(textColor);
+            setContentAreaFilled(false);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            setHorizontalTextPosition(SwingConstants.RIGHT);
+            setIconTextGap(6);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(fill);
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+            g2.dispose();
+            super.paintComponent(g);
+        }
+    }
+
+    // ---------- Hand-drawn icons (avoid unreliable symbol-font rendering) ----------
+
+    private static class UploadIcon implements Icon {
+        private final Color color;
+        UploadIcon(Color color) { this.color = color; }
+        public int getIconWidth() { return 14; }
+        public int getIconHeight() { return 14; }
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.translate(x, y);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(color);
+            g2.setStroke(new BasicStroke(1.6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2.draw(new Line2D.Double(7, 2, 7, 10));
+            g2.draw(new Line2D.Double(3.5, 5.5, 7, 2));
+            g2.draw(new Line2D.Double(10.5, 5.5, 7, 2));
+            g2.draw(new Line2D.Double(2, 12, 12, 12));
+            g2.dispose();
+        }
+    }
+
+    private static class MinimizeIcon implements Icon {
+        public int getIconWidth() { return 14; }
+        public int getIconHeight() { return 14; }
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(Color.WHITE);
+            g2.setStroke(new BasicStroke(1.4f));
+            g2.draw(new Line2D.Double(x + 3, y + 10, x + 11, y + 10));
+            g2.dispose();
+        }
+    }
+
+    private static class MaximizeIcon implements Icon {
+        public int getIconWidth() { return 14; }
+        public int getIconHeight() { return 14; }
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(Color.WHITE);
+            g2.setStroke(new BasicStroke(1.3f));
+            g2.draw(new Rectangle2D.Double(x + 3, y + 3, 8, 8));
+            g2.dispose();
+        }
+    }
+
+    private static class CloseIcon implements Icon {
+        public int getIconWidth() { return 14; }
+        public int getIconHeight() { return 14; }
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(Color.WHITE);
+            g2.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2.draw(new Line2D.Double(x + 3, y + 3, x + 11, y + 11));
+            g2.draw(new Line2D.Double(x + 11, y + 3, x + 3, y + 11));
+            g2.dispose();
+        }
+    }
+}

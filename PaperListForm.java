@@ -14,17 +14,27 @@ import java.util.List;
 
 public class PaperListForm extends JFrame {
 
-    private static final Color SIDEBAR_BG = new Color(0x14, 0x22, 0x3D);
-    private static final Color SIDEBAR_SELECTED = new Color(0x24, 0x4A, 0x8C);
-    private static final Color ACCENT_BLUE = new Color(0x2F, 0x6F, 0xED);
-    private static final Color CONTENT_BG = new Color(0xF4, 0xF6, 0xFA);
-    private static final Color TABLE_HEADER_BG = new Color(0xF0, 0xF2, 0xF7);
-    private static final Color ROW_ALT_BG = new Color(0xFA, 0xFB, 0xFD);
+    private static final Color PRIMARY_BLUE = new Color(0x15, 0x65, 0xC0);
+    private static final Color DARK_BLUE = new Color(0x0D, 0x47, 0xA1);
+    private static final Color LIGHT_BLUE = new Color(0xE3, 0xF2, 0xFD);
+    private static final Color BACKGROUND = new Color(0xF5, 0xF7, 0xFA);
+    private static final Color CARD = Color.WHITE;
+    private static final Color SUCCESS = new Color(0x2E, 0x7D, 0x32);
+    private static final Color EDIT_ACCENT = new Color(0xF9, 0xA8, 0x25);
+    private static final Color DELETE_ACCENT = new Color(0xD3, 0x2F, 0x2F);
+
+    private static final Color SIDEBAR_BG = DARK_BLUE;
+    private static final Color SIDEBAR_SELECTED = PRIMARY_BLUE;
+    private static final Color ACCENT_BLUE = PRIMARY_BLUE;
+    private static final Color CONTENT_BG = BACKGROUND;
+    private static final Color TABLE_HEADER_BG = PRIMARY_BLUE;
+    private static final Color ROW_ALT_BG = new Color(0xF5, 0xF9, 0xFE);
     private static final Color TEXT_DARK = new Color(0x1A, 0x22, 0x33);
     private static final Color TEXT_MUTED = new Color(0x8A, 0x93, 0xA6);
-    private static final Color VIEW_COLOR = new Color(0x2F, 0x6F, 0xED);
-    private static final Color EDIT_COLOR = new Color(0xE8, 0xA2, 0x3A);
-    private static final Color DELETE_COLOR = new Color(0xE0, 0x4F, 0x4F);
+    private static final Color VIEW_COLOR = PRIMARY_BLUE;
+    private static final Color EDIT_COLOR = EDIT_ACCENT;
+    private static final Color DELETE_COLOR = DELETE_ACCENT;
+    private static final Color PDF_COLOR = SUCCESS;
 
     private final PaperController controller;
     private final DefaultTableModel tableModel;
@@ -54,20 +64,20 @@ public class PaperListForm extends JFrame {
             }
         };
         table = new JTable(tableModel);
-        table.setRowHeight(48);
+        table.setRowHeight(52);
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         table.setSelectionBackground(new Color(0xE9, 0xF0, 0xFD));
         table.setSelectionForeground(TEXT_DARK);
-        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
         table.getTableHeader().setBackground(TABLE_HEADER_BG);
-        table.getTableHeader().setForeground(TEXT_MUTED);
+        table.getTableHeader().setForeground(Color.WHITE);
         table.getTableHeader().setPreferredSize(new Dimension(0, 38));
         table.getTableHeader().setBorder(BorderFactory.createEmptyBorder());
         table.getColumnModel().getColumn(0).setMaxWidth(50);
-        table.getColumnModel().getColumn(5).setPreferredWidth(104);
-        table.getColumnModel().getColumn(5).setMaxWidth(130);
+        table.getColumnModel().getColumn(5).setPreferredWidth(140);
+        table.getColumnModel().getColumn(5).setMaxWidth(170);
         table.setDefaultRenderer(Object.class, new StripedCellRenderer());
 
         ActionsPanelFactory factory = new ActionsPanelFactory();
@@ -99,6 +109,7 @@ public class PaperListForm extends JFrame {
         sidebar.add(buildProfileBlock());
         sidebar.add(Box.createVerticalStrut(20));
         sidebar.add(buildNavButton("Paper List", true, this::refreshTable));
+        sidebar.add(buildNavButton("Add Paper", false, this::onAdd));
         sidebar.add(buildNavButton("Edit Paper", false, this::onEdit));
         sidebar.add(buildNavButton("Delete Paper", false, this::onDelete));
         sidebar.add(buildNavButton("View Paper Details", false, this::onViewDetails));
@@ -185,6 +196,13 @@ public class PaperListForm extends JFrame {
         } else {
             btn.setBackground(SIDEBAR_BG);
             btn.setForeground(new Color(0xC7, 0xD0, 0xE0));
+            Color hoverBg = new Color(0x1A, 0x56, 0xA8);
+            btn.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) { btn.setBackground(hoverBg); }
+                @Override
+                public void mouseExited(MouseEvent e) { btn.setBackground(SIDEBAR_BG); }
+            });
         }
         btn.addActionListener(e -> action.run());
         return btn;
@@ -242,22 +260,23 @@ public class PaperListForm extends JFrame {
         List<Paper> papers = controller.getAllPapers();
         for (Paper p : papers) {
             tableModel.addRow(new Object[]{
-                p.getId(), p.getTitle(), p.getAuthor(), p.getYear(), p.getCategory(), ""
+                    p.getId(), p.getTitle(), p.getAuthor(), p.getYear(), p.getCategory(), ""
             });
         }
         totalLabel.setText("Total Papers: " + papers.size());
     }
 
     private int getSelectedId() {
-        int row = table.getSelectedRow();
-        if (row == -1) {
-            return -1;
-        }
-        return (int) tableModel.getValueAt(row, 0);
+        int viewRow = table.getSelectedRow();
+        if (viewRow == -1) return -1;
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        return (int) tableModel.getValueAt(modelRow, 0);
     }
 
-    private int idForRow(int row) {
-        return (int) tableModel.getValueAt(row, 0);
+    /** viewRow is the row index as seen by the JTable (may differ from the model if sorted). */
+    private int idForRow(int viewRow) {
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        return (int) tableModel.getValueAt(modelRow, 0);
     }
 
     private void onAdd() {
@@ -312,8 +331,9 @@ public class PaperListForm extends JFrame {
 
     private void viewRow(int id) {
         Paper paper = controller.getPaperById(id);
-        PaperDetailsForm form = new PaperDetailsForm(this, paper);
+        PaperDetailsForm form = new PaperDetailsForm(this, controller, paper);
         form.setVisible(true);
+        refreshTable();
     }
 
     private void onOpenPdf() {
@@ -322,6 +342,10 @@ public class PaperListForm extends JFrame {
             showNoSelectionWarning();
             return;
         }
+        openPdfRow(id);
+    }
+
+    private void openPdfRow(int id) {
         boolean opened = controller.openPdf(id);
         if (!opened) {
             JOptionPane.showMessageDialog(this,
@@ -337,10 +361,9 @@ public class PaperListForm extends JFrame {
     }
 
     private class StripedCellRenderer extends DefaultTableCellRenderer {
-
         @Override
         public Component getTableCellRendererComponent(JTable tbl, Object value, boolean isSelected,
-                boolean hasFocus, int row, int column) {
+                                                         boolean hasFocus, int row, int column) {
             Component c = super.getTableCellRendererComponent(tbl, value, isSelected, hasFocus, row, column);
             setBorder(BorderFactory.createEmptyBorder(0, 14, 0, 14));
             if (!isSelected) {
@@ -352,12 +375,14 @@ public class PaperListForm extends JFrame {
     }
 
     private static class SolidButton extends JButton {
-
         private final Color fill;
+        private final Color hoverFill;
+        private boolean hovering;
 
         SolidButton(String text, Color fill, Color textColor) {
             super(text);
             this.fill = fill;
+            this.hoverFill = fill.darker();
             setForeground(textColor);
             setFont(new Font("Segoe UI", Font.BOLD, 13));
             setContentAreaFilled(false);
@@ -365,25 +390,28 @@ public class PaperListForm extends JFrame {
             setBorderPainted(false);
             setBorder(BorderFactory.createEmptyBorder(10, 18, 10, 18));
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) { hovering = true; repaint(); }
+                @Override
+                public void mouseExited(MouseEvent e) { hovering = false; repaint(); }
+            });
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(fill);
+            g2.setColor(hovering ? hoverFill : fill);
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
             g2.dispose();
             super.paintComponent(g);
         }
     }
 
-    private enum IconType {
-        VIEW, EDIT, DELETE
-    }
+    private enum IconType { VIEW, EDIT, DELETE, PDF }
 
     private static class LogoutIcon implements Icon {
-
         private final Color color;
 
         LogoutIcon(Color color) {
@@ -391,14 +419,10 @@ public class PaperListForm extends JFrame {
         }
 
         @Override
-        public int getIconWidth() {
-            return 16;
-        }
+        public int getIconWidth() { return 16; }
 
         @Override
-        public int getIconHeight() {
-            return 16;
-        }
+        public int getIconHeight() { return 16; }
 
         @Override
         public void paintIcon(Component c, Graphics g, int x, int y) {
@@ -416,9 +440,9 @@ public class PaperListForm extends JFrame {
     }
 
     private static class IconButton extends JButton {
-
         private final IconType type;
         private final Color color;
+        private boolean hovering;
 
         IconButton(IconType type, Color color) {
             this.type = type;
@@ -428,7 +452,14 @@ public class PaperListForm extends JFrame {
             setFocusPainted(false);
             setBorderPainted(false);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            setToolTipText(type == IconType.VIEW ? "View" : type == IconType.EDIT ? "Edit" : "Delete");
+            setToolTipText(type == IconType.VIEW ? "View Paper" : type == IconType.EDIT ? "Edit Paper"
+                    : type == IconType.DELETE ? "Delete Paper" : "Open PDF");
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) { hovering = true; repaint(); }
+                @Override
+                public void mouseExited(MouseEvent e) { hovering = false; repaint(); }
+            });
         }
 
         @Override
@@ -437,7 +468,7 @@ public class PaperListForm extends JFrame {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             int w = getWidth(), h = getHeight();
 
-            g2.setColor(Color.WHITE);
+            g2.setColor(hovering ? new Color(color.getRed(), color.getGreen(), color.getBlue(), 28) : Color.WHITE);
             g2.fillRoundRect(1, 1, w - 3, h - 3, 7, 7);
             g2.setColor(color);
             g2.setStroke(new BasicStroke(1.3f));
@@ -470,17 +501,27 @@ public class PaperListForm extends JFrame {
                     g2.draw(new Line2D.Double(cx - 1, cy - 7, cx + 1, cy - 7));
                     g2.draw(new Line2D.Double(cx + 1, cy - 7, cx + 2, cy - 5));
                     break;
+                case PDF:
+                    g2.draw(new Line2D.Double(cx - 4, cy - 6, cx + 2, cy - 6));
+                    g2.draw(new Line2D.Double(cx + 2, cy - 6, cx + 5, cy - 3));
+                    g2.draw(new Line2D.Double(cx + 5, cy - 3, cx + 5, cy + 6));
+                    g2.draw(new Line2D.Double(cx + 5, cy + 6, cx - 4, cy + 6));
+                    g2.draw(new Line2D.Double(cx - 4, cy + 6, cx - 4, cy - 6));
+                    g2.draw(new Line2D.Double(cx + 2, cy - 6, cx + 2, cy - 3));
+                    g2.draw(new Line2D.Double(cx + 2, cy - 3, cx + 5, cy - 3));
+                    g2.draw(new Line2D.Double(cx - 2, cy, cx + 3, cy));
+                    g2.draw(new Line2D.Double(cx - 2, cy + 3, cx + 3, cy + 3));
+                    break;
             }
             g2.dispose();
         }
     }
 
     private class ActionsPanelFactory {
-
-        JPanel createPanel(ActionListener onView, ActionListener onEdit, ActionListener onDelete) {
-            JPanel panel = new JPanel(new GridLayout(1, 3, 4, 0));
+        JPanel createPanel(ActionListener onView, ActionListener onEdit, ActionListener onDelete, ActionListener onPdf) {
+            JPanel panel = new JPanel(new GridLayout(1, 4, 3, 0));
             panel.setOpaque(false);
-            panel.setPreferredSize(new Dimension(96, 30));
+            panel.setPreferredSize(new Dimension(128, 30));
 
             IconButton viewBtn = new IconButton(IconType.VIEW, VIEW_COLOR);
             viewBtn.addActionListener(onView);
@@ -488,16 +529,18 @@ public class PaperListForm extends JFrame {
             editBtn.addActionListener(onEdit);
             IconButton deleteBtn = new IconButton(IconType.DELETE, DELETE_COLOR);
             deleteBtn.addActionListener(onDelete);
+            IconButton pdfBtn = new IconButton(IconType.PDF, PDF_COLOR);
+            pdfBtn.addActionListener(onPdf);
 
             panel.add(viewBtn);
             panel.add(editBtn);
             panel.add(deleteBtn);
+            panel.add(pdfBtn);
             return panel;
         }
     }
 
     private class ActionsRenderer implements TableCellRenderer {
-
         private final ActionsPanelFactory factory;
 
         ActionsRenderer(ActionsPanelFactory factory) {
@@ -506,18 +549,14 @@ public class PaperListForm extends JFrame {
 
         @Override
         public Component getTableCellRendererComponent(JTable tbl, Object value, boolean isSelected,
-                boolean hasFocus, int row, int column) {
-            JPanel panel = factory.createPanel(e -> {
-            }, e -> {
-            }, e -> {
-            });
+                                                         boolean hasFocus, int row, int column) {
+            JPanel panel = factory.createPanel(e -> {}, e -> {}, e -> {}, e -> {});
             panel.setBackground(row % 2 == 0 ? Color.WHITE : ROW_ALT_BG);
             return panel;
         }
     }
 
     private class ActionsEditor extends AbstractCellEditor implements TableCellEditor {
-
         private final ActionsPanelFactory factory;
         private JPanel panel;
         private int currentRow;
@@ -530,18 +569,10 @@ public class PaperListForm extends JFrame {
         public Component getTableCellEditorComponent(JTable tbl, Object value, boolean isSelected, int row, int column) {
             currentRow = row;
             panel = factory.createPanel(
-                    e -> {
-                        fireEditingStopped();
-                        viewRow(idForRow(currentRow));
-                    },
-                    e -> {
-                        fireEditingStopped();
-                        editRow(idForRow(currentRow));
-                    },
-                    e -> {
-                        fireEditingStopped();
-                        deleteRow(idForRow(currentRow));
-                    }
+                    e -> { fireEditingStopped(); viewRow(idForRow(currentRow)); },
+                    e -> { fireEditingStopped(); editRow(idForRow(currentRow)); },
+                    e -> { fireEditingStopped(); deleteRow(idForRow(currentRow)); },
+                    e -> { fireEditingStopped(); openPdfRow(idForRow(currentRow)); }
             );
             panel.setBackground(row % 2 == 0 ? Color.WHITE : ROW_ALT_BG);
             return panel;

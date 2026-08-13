@@ -1,7 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
 package com.mycompany.papermanager;
+
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
@@ -18,8 +16,10 @@ public class PaperManager {
     public PaperManager() {
         papers = new ArrayList<>();
         nextId = 1;
+
         ensureDirs();
         loadPapers();
+
         if (papers.isEmpty()) {
             seedSampleData();
         }
@@ -27,16 +27,61 @@ public class PaperManager {
 
     private void seedSampleData() {
         try {
-            addPaper("Deep Learning for NLP Applications", "J. Smith, A. Lee", "2023", "IEEE Access",
-                    "deep learning, NLP, transformers", "", null);
-            addPaper("A Survey on Blockchain Technology", "R. Kumar, P. Singh", "2022", "Springer",
-                    "blockchain, distributed ledger, security", "", null);
-            addPaper("Machine Learning in Healthcare", "M. Brown, T. White", "2021", "Elsevier",
-                    "machine learning, healthcare, diagnostics", "", null);
-            addPaper("Quantum Computing: An Overview", "L. Johnson", "2020", "ACM Computing Surveys",
-                    "quantum computing, qubits, algorithms", "", null);
-            addPaper("Internet of Things Security Challenges", "S. Ahmad, K. Khan", "2023", "IEEE IoT Journal",
-                    "IoT, security, privacy", "", null);
+            addPaper(
+                    "Deep Learning for NLP Applications",
+                    "J. Smith, A. Lee",
+                    "2023",
+                    "IEEE Access",
+                    "deep learning, NLP, transformers",
+                    "",
+                    null,
+                    null
+            );
+
+            addPaper(
+                    "A Survey on Blockchain Technology",
+                    "R. Kumar, P. Singh",
+                    "2022",
+                    "Springer",
+                    "blockchain, distributed ledger, security",
+                    "",
+                    null,
+                    null
+            );
+
+            addPaper(
+                    "Machine Learning in Healthcare",
+                    "M. Brown, T. White",
+                    "2021",
+                    "Elsevier",
+                    "machine learning, healthcare, diagnostics",
+                    "",
+                    null,
+                    null
+            );
+
+            addPaper(
+                    "Quantum Computing: An Overview",
+                    "L. Johnson",
+                    "2020",
+                    "ACM Computing Surveys",
+                    "quantum computing, qubits, algorithms",
+                    "",
+                    null,
+                    null
+            );
+
+            addPaper(
+                    "Internet of Things Security Challenges",
+                    "S. Ahmad, K. Khan",
+                    "2023",
+                    "IEEE IoT Journal",
+                    "IoT, security, privacy",
+                    "",
+                    null,
+                    null
+            );
+
         } catch (IOException e) {
             System.err.println("Failed to seed sample data: " + e.getMessage());
         }
@@ -47,23 +92,130 @@ public class PaperManager {
         new File(REPO_DIR).mkdirs();
     }
 
-    public Paper addPaper(String title, String author, String year, String category, String keywords,
-                          String abstractText, File sourcePdf) throws IOException {
+    /**
+     * Original-compatible addPaper method.
+     * Creates an unprotected paper.
+     */
+    public Paper addPaper(
+            String title,
+            String author,
+            String year,
+            String category,
+            String keywords,
+            String abstractText,
+            File sourcePdf) throws IOException {
+
+        return addPaper(
+                title,
+                author,
+                year,
+                category,
+                keywords,
+                abstractText,
+                sourcePdf,
+                null
+        );
+    }
+
+    /**
+     * Adds a paper with optional PDF password protection.
+     *
+     * @param pdfPasswordHash SHA-256 hash of the application password,
+     *                        or null for no password protection.
+     */
+    public Paper addPaper(
+            String title,
+            String author,
+            String year,
+            String category,
+            String keywords,
+            String abstractText,
+            File sourcePdf,
+            String pdfPasswordHash) throws IOException {
+
         String storedPath = null;
+
         if (sourcePdf != null) {
             storedPath = copyPdfToRepo(sourcePdf, nextId);
         }
-        Paper p = new Paper(nextId, title, author, year, category, keywords, abstractText, storedPath);
+
+        Paper p = new Paper(
+                nextId,
+                title,
+                author,
+                year,
+                category,
+                keywords,
+                abstractText,
+                storedPath
+        );
+
+        p.setPdfPasswordHash(pdfPasswordHash);
+
         papers.add(p);
         nextId++;
+
         savePapers();
+
         return p;
     }
 
-    public boolean editPaper(int id, String title, String author, String year, String category, String keywords,
-                              String abstractText, File newPdf) throws IOException {
+    /**
+     * Original-compatible editPaper method.
+     * Keeps existing password protection.
+     */
+    public boolean editPaper(
+            int id,
+            String title,
+            String author,
+            String year,
+            String category,
+            String keywords,
+            String abstractText,
+            File newPdf) throws IOException {
+
         Paper p = getPaperById(id);
-        if (p == null) return false;
+
+        if (p == null) {
+            return false;
+        }
+
+        String existingPasswordHash = p.getPdfPasswordHash();
+
+        return editPaper(
+                id,
+                title,
+                author,
+                year,
+                category,
+                keywords,
+                abstractText,
+                newPdf,
+                existingPasswordHash
+        );
+    }
+
+    /**
+     * Edits a paper and updates optional PDF password protection.
+     *
+     * @param pdfPasswordHash SHA-256 hash or null for no protection.
+     */
+    public boolean editPaper(
+            int id,
+            String title,
+            String author,
+            String year,
+            String category,
+            String keywords,
+            String abstractText,
+            File newPdf,
+            String pdfPasswordHash) throws IOException {
+
+        Paper p = getPaperById(id);
+
+        if (p == null) {
+            return false;
+        }
 
         p.setTitle(title);
         p.setAuthor(author);
@@ -76,28 +228,46 @@ public class PaperManager {
             String storedPath = copyPdfToRepo(newPdf, id);
             p.setPdfPath(storedPath);
         }
+
+        p.setPdfPasswordHash(pdfPasswordHash);
+        p.touch();
+
         savePapers();
+
         return true;
     }
 
     public boolean deletePaper(int id) {
+
         Paper p = getPaperById(id);
-        if (p == null) return false;
+
+        if (p == null) {
+            return false;
+        }
+
         if (p.hasPdf()) {
             File f = new File(p.getPdfPath());
+
             if (f.exists()) {
                 f.delete();
             }
         }
+
         papers.remove(p);
+
         savePapers();
+
         return true;
     }
 
     public Paper getPaperById(int id) {
+
         for (Paper p : papers) {
-            if (p.getId() == id) return p;
+            if (p.getId() == id) {
+                return p;
+            }
         }
+
         return null;
     }
 
@@ -106,33 +276,78 @@ public class PaperManager {
     }
 
     private String copyPdfToRepo(File source, int id) throws IOException {
-        String safeName = "paper_" + id + "_" + source.getName().replaceAll("[^a-zA-Z0-9._-]", "_");
+
+        String safeName =
+                "paper_" +
+                id +
+                "_" +
+                source.getName().replaceAll("[^a-zA-Z0-9._-]", "_");
+
         Path target = Paths.get(REPO_DIR, safeName);
-        Files.copy(source.toPath(), target, StandardCopyOption.REPLACE_EXISTING);
+
+        Files.copy(
+                source.toPath(),
+                target,
+                StandardCopyOption.REPLACE_EXISTING
+        );
+
         return target.toString();
     }
 
     @SuppressWarnings("unchecked")
     private void loadPapers() {
+
         File f = new File(DATA_FILE);
-        if (!f.exists()) return;
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
+
+        if (!f.exists()) {
+            return;
+        }
+
+        try (ObjectInputStream ois =
+                     new ObjectInputStream(
+                             new FileInputStream(f))) {
+
             papers = (List<Paper>) ois.readObject();
+
             for (Paper p : papers) {
+
                 if (p.getId() >= nextId) {
                     nextId = p.getId() + 1;
                 }
+
+                /*
+                 * Old Paper objects created before the password feature
+                 * will simply have a null password hash.
+                 * That means they remain unprotected.
+                 */
+                if (p.getPdfPasswordHash() == null) {
+                    p.setPdfPasswordHash(null);
+                }
             }
+
         } catch (Exception e) {
-            System.err.println("Failed to load paper data: " + e.getMessage());
+
+            System.err.println(
+                    "Failed to load paper data: " +
+                    e.getMessage()
+            );
         }
     }
 
     private void savePapers() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(DATA_FILE))) {
+
+        try (ObjectOutputStream oos =
+                     new ObjectOutputStream(
+                             new FileOutputStream(DATA_FILE))) {
+
             oos.writeObject(papers);
+
         } catch (IOException e) {
-            System.err.println("Failed to save paper data: " + e.getMessage());
+
+            System.err.println(
+                    "Failed to save paper data: " +
+                    e.getMessage()
+            );
         }
     }
 }

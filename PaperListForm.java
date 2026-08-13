@@ -70,11 +70,9 @@ public class PaperListForm extends JFrame {
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         table.setSelectionBackground(new Color(0xE9, 0xF0, 0xFD));
         table.setSelectionForeground(TEXT_DARK);
-        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        table.getTableHeader().setBackground(TABLE_HEADER_BG);
-        table.getTableHeader().setForeground(Color.WHITE);
-        table.getTableHeader().setPreferredSize(new Dimension(0, 38));
-        table.getTableHeader().setBorder(BorderFactory.createEmptyBorder());
+        table.getTableHeader().setPreferredSize(new Dimension(0, 40));
+        table.getTableHeader().setDefaultRenderer(new HeaderRenderer());
+        table.getTableHeader().setReorderingAllowed(false);
         table.getColumnModel().getColumn(0).setMaxWidth(50);
         table.getColumnModel().getColumn(5).setPreferredWidth(140);
         table.getColumnModel().getColumn(5).setMaxWidth(170);
@@ -109,11 +107,6 @@ public class PaperListForm extends JFrame {
         sidebar.add(buildProfileBlock());
         sidebar.add(Box.createVerticalStrut(20));
         sidebar.add(buildNavButton("Paper List", true, this::refreshTable));
-        sidebar.add(buildNavButton("Add Paper", false, this::onAdd));
-        sidebar.add(buildNavButton("Edit Paper", false, this::onEdit));
-        sidebar.add(buildNavButton("Delete Paper", false, this::onDelete));
-        sidebar.add(buildNavButton("View Paper Details", false, this::onViewDetails));
-        sidebar.add(buildNavButton("Open PDF", false, this::onOpenPdf));
         sidebar.add(Box.createVerticalGlue());
 
         JSeparator sep = new JSeparator();
@@ -368,6 +361,35 @@ public class PaperListForm extends JFrame {
         JOptionPane.showMessageDialog(this,
                 "Please select a paper from the list first.",
                 "No Paper Selected", JOptionPane.WARNING_MESSAGE);
+    }
+/** Windows' Look & Feel ignores setBackground/setForeground on JTableHeader, so
+     *  we paint the header cells ourselves, same fix pattern used for buttons. */
+    private class HeaderRenderer extends JLabel implements TableCellRenderer {
+        HeaderRenderer() {
+            setOpaque(true);
+            setFont(new Font("Segoe UI", Font.BOLD, 13));
+            setForeground(Color.WHITE);
+            setBackground(TABLE_HEADER_BG);
+            setHorizontalAlignment(SwingConstants.LEFT);
+            setBorder(BorderFactory.createEmptyBorder(0, 14, 0, 14));
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable tbl, Object value, boolean isSelected,
+                                                         boolean hasFocus, int row, int column) {
+            setText(value == null ? "" : value.toString());
+            setHorizontalAlignment(column == 0 || column == 5 ? SwingConstants.CENTER : SwingConstants.LEFT);
+            return this;
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setColor(TABLE_HEADER_BG);
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            g2.dispose();
+            super.paintComponent(g);
+        }
     }
 
     private class StripedCellRenderer extends DefaultTableCellRenderer {

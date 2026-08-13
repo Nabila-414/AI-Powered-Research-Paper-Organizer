@@ -60,7 +60,7 @@ public class UploadPaperForm extends JDialog {
         this.existingPaper = existingPaper;
 
         setUndecorated(true);
-        setSize(760, 500);
+        setSize(760, 580);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout());
         ((JComponent) getContentPane()).setBorder(new LineBorder(BORDER_LIGHT, 1));
@@ -149,7 +149,14 @@ public class UploadPaperForm extends JDialog {
         body.setBackground(Color.WHITE);
         body.setBorder(BorderFactory.createEmptyBorder(20, 24, 20, 24));
 
-        body.add(buildFormColumn(), BorderLayout.CENTER);
+        JScrollPane formScroll = new JScrollPane(buildFormColumn());
+        formScroll.setBorder(BorderFactory.createEmptyBorder());
+        formScroll.getViewport().setBackground(Color.WHITE);
+        formScroll.getVerticalScrollBar().setUnitIncrement(16);
+        formScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        formScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        body.add(formScroll, BorderLayout.CENTER);
         body.add(buildGraphicColumn(), BorderLayout.EAST);
         return body;
     }
@@ -293,6 +300,322 @@ public class UploadPaperForm extends JDialog {
         addSecondaryHover(clearBtn);
         clearBtn.addActionListener(e -> clearForm());
 
-        Color saveColor = existingPaper == null ?   
-    
-PRIMARY_BLUE
+        JButton cancelBtn = new JButton("Cancel");
+        cancelBtn.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        cancelBtn.setBorder(new CompoundBorder(new LineBorder(BORDER_LIGHT, 1, true),
+                BorderFactory.createEmptyBorder(9, 20, 9, 20)));
+        cancelBtn.setFocusPainted(false);
+        cancelBtn.setBackground(new Color(0xF3, 0xF4, 0xF7));
+        cancelBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        addSecondaryHover(cancelBtn);
+        cancelBtn.addActionListener(e -> dispose());
+
+        Color saveColor = existingPaper == null ? PRIMARY_BLUE : EDIT_ACCENT;
+        SolidButton uploadBtn = new SolidButton(existingPaper == null ? " Upload Paper" : " Save Changes",
+                saveColor, Color.WHITE, new UploadIcon(Color.WHITE));
+        uploadBtn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        uploadBtn.setBorder(BorderFactory.createEmptyBorder(9, 22, 9, 22));
+        uploadBtn.addActionListener(e -> onSave());
+
+        row.add(clearBtn);
+        row.add(cancelBtn);
+        row.add(uploadBtn);
+        return row;
+    }
+
+    private JPanel buildGraphicColumn() {
+        JPanel col = new JPanel();
+        col.setLayout(new BoxLayout(col, BoxLayout.Y_AXIS));
+        col.setBackground(Color.WHITE);
+        col.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 0));
+        Dimension colSize = new Dimension(160, 230);
+        col.setPreferredSize(colSize);
+        col.setMinimumSize(colSize);
+
+        JComponent graphic = buildDocumentGraphic();
+        graphic.setAlignmentX(Component.CENTER_ALIGNMENT);
+        col.add(graphic);
+        return col;
+    }
+
+    private JComponent buildDocumentGraphic() {
+        JComponent graphic = new JComponent() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int w = 140, h = 190, fold = 26;
+
+                Path2D page = new Path2D.Double();
+                page.moveTo(0, 0);
+                page.lineTo(w - fold, 0);
+                page.lineTo(w, fold);
+                page.lineTo(w, h);
+                page.lineTo(0, h);
+                page.closePath();
+                g2.setColor(PAGE_GRAY);
+                g2.fill(page);
+                g2.setColor(BORDER_LIGHT);
+                g2.setStroke(new BasicStroke(1.5f));
+                g2.draw(page);
+
+                Path2D foldTri = new Path2D.Double();
+                foldTri.moveTo(w - fold, 0);
+                foldTri.lineTo(w, fold);
+                foldTri.lineTo(w - fold, fold);
+                foldTri.closePath();
+                g2.setColor(PAGE_FOLD);
+                g2.fill(foldTri);
+
+                int badgeW = 62, badgeH = 26;
+                int badgeX = (w - badgeW) / 2, badgeY = 80;
+                g2.setColor(PDF_RED);
+                g2.fill(new RoundRectangle2D.Double(badgeX, badgeY, badgeW, badgeH, 4, 4));
+                g2.setColor(Color.WHITE);
+                g2.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                g2.drawString("PDF", badgeX + 10, badgeY + 18);
+
+                g2.dispose();
+            }
+        };
+        graphic.setPreferredSize(new Dimension(140, 190));
+        graphic.setMinimumSize(new Dimension(140, 190));
+        graphic.setMaximumSize(new Dimension(140, 190));
+        return graphic;
+    }
+
+    // ---------- Data ----------
+    private void populateFromExisting() {
+        titleField.setText(existingPaper.getTitle());
+        authorField.setText(existingPaper.getAuthor());
+        categoryField.setText(existingPaper.getCategory());
+        keywordsField.setText(existingPaper.getKeywords());
+        try {
+            yearCombo.setSelectedItem(Integer.parseInt(existingPaper.getYear()));
+        } catch (Exception ignored) {
+        }
+        if (existingPaper.hasPdf()) {
+            pdfLabel.setText(new File(existingPaper.getPdfPath()).getName());
+        }
+    }
+
+    private void clearForm() {
+        titleField.setText("");
+        authorField.setText("");
+        categoryField.setText("");
+        keywordsField.setText("");
+        yearCombo.setSelectedItem(Year.now().getValue());
+        selectedPdf = null;
+        pdfLabel.setText("No file chosen");
+    }
+
+    private void onChoosePdf() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PDF Files", "pdf"));
+        int result = chooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File chosen = chooser.getSelectedFile();
+            if (!chosen.getName().toLowerCase().endsWith(".pdf")) {
+                JOptionPane.showMessageDialog(this, "Only PDF files are allowed.", "Invalid File", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            selectedPdf = chosen;
+            pdfLabel.setText(selectedPdf.getName());
+        }
+    }
+
+    private void onSave() {
+        String title = titleField.getText();
+        String author = authorField.getText();
+        String year = String.valueOf(yearCombo.getSelectedItem());
+        String category = categoryField.getText();
+        String keywords = keywordsField.getText();
+        String abstractText = existingPaper != null ? existingPaper.getAbstractText() : "";
+
+        boolean hasExistingPdf = existingPaper != null && existingPaper.hasPdf();
+        if (selectedPdf == null && !hasExistingPdf) {
+            JOptionPane.showMessageDialog(this, "Please choose a PDF file.", "Cannot Upload", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String error;
+        if (existingPaper == null) {
+            error = controller.addPaper(title, author, year, category, keywords, abstractText, selectedPdf);
+        } else {
+            error = controller.editPaper(existingPaper.getId(), title, author, year, category, keywords, abstractText, selectedPdf);
+        }
+
+        if (error != null) {
+            JOptionPane.showMessageDialog(this, error, "Cannot Upload", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JOptionPane.showMessageDialog(this,
+                existingPaper == null ? "Paper added successfully!" : "Paper updated successfully!",
+                "Success", JOptionPane.INFORMATION_MESSAGE);
+        dispose();
+    }
+
+    // ---------- Placeholder-capable text field ----------
+    private static class PlaceholderField extends JTextField {
+
+        private final String placeholder;
+
+        PlaceholderField(String placeholder) {
+            this.placeholder = placeholder;
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (getText().isEmpty() && !isFocusOwner()) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(TEXT_MUTED);
+                g2.setFont(getFont());
+                Insets ins = getInsets();
+                FontMetrics fm = g2.getFontMetrics();
+                int y = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
+                g2.drawString(placeholder, ins.left, y);
+                g2.dispose();
+            }
+        }
+    }
+
+    // ---------- Self-painted solid button (reliable background on Windows L&F) ----------
+    private static class SolidButton extends JButton {
+
+        private final Color fill;
+        private final Color hoverFill;
+        private boolean hovering;
+
+        SolidButton(String text, Color fill, Color textColor, Icon icon) {
+            super(text, icon);
+            this.fill = fill;
+            this.hoverFill = fill.darker();
+            setForeground(textColor);
+            setContentAreaFilled(false);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            setHorizontalTextPosition(SwingConstants.RIGHT);
+            setIconTextGap(6);
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    hovering = true;
+                    repaint();
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    hovering = false;
+                    repaint();
+                }
+            });
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(hovering ? hoverFill : fill);
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+            g2.dispose();
+            super.paintComponent(g);
+        }
+    }
+
+    // ---------- Hand-drawn icons (avoid unreliable symbol-font rendering) ----------
+    private static class UploadIcon implements Icon {
+
+        private final Color color;
+
+        UploadIcon(Color color) {
+            this.color = color;
+        }
+
+        public int getIconWidth() {
+            return 14;
+        }
+
+        public int getIconHeight() {
+            return 14;
+        }
+
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.translate(x, y);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(color);
+            g2.setStroke(new BasicStroke(1.6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2.draw(new Line2D.Double(7, 2, 7, 10));
+            g2.draw(new Line2D.Double(3.5, 5.5, 7, 2));
+            g2.draw(new Line2D.Double(10.5, 5.5, 7, 2));
+            g2.draw(new Line2D.Double(2, 12, 12, 12));
+            g2.dispose();
+        }
+    }
+
+    private static class MinimizeIcon implements Icon {
+
+        public int getIconWidth() {
+            return 14;
+        }
+
+        public int getIconHeight() {
+            return 14;
+        }
+
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(Color.WHITE);
+            g2.setStroke(new BasicStroke(1.4f));
+            g2.draw(new Line2D.Double(x + 3, y + 10, x + 11, y + 10));
+            g2.dispose();
+        }
+    }
+
+    private static class MaximizeIcon implements Icon {
+
+        public int getIconWidth() {
+            return 14;
+        }
+
+        public int getIconHeight() {
+            return 14;
+        }
+
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(Color.WHITE);
+            g2.setStroke(new BasicStroke(1.3f));
+            g2.draw(new Rectangle2D.Double(x + 3, y + 3, 8, 8));
+            g2.dispose();
+        }
+    }
+
+    private static class CloseIcon implements Icon {
+
+        public int getIconWidth() {
+            return 14;
+        }
+
+        public int getIconHeight() {
+            return 14;
+        }
+
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(Color.WHITE);
+            g2.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2.draw(new Line2D.Double(x + 3, y + 3, x + 11, y + 11));
+            g2.draw(new Line2D.Double(x + 11, y + 3, x + 3, y + 11));
+            g2.dispose();
+        }
+    }
+}

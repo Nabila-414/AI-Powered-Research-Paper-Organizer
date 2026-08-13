@@ -1002,70 +1002,281 @@ Add a `.gitignore` with:
 bin/
 *.class
 ```
-## 👤 Member 4 — AI Features
+<div align="center">
 
-The AI Features module is responsible for providing intelligent assistance to users while reading, analyzing, and managing research papers. It aims to reduce the time required for understanding papers, extracting useful information, generating citations, and discovering relevant research.
+# 🤖 AI Features Module
+### Member 4 — AI Powered Research Paper Organizer
 
-### 🤖 AI-Powered Features
+*Summarize, extract, cite, and discover research papers — powered by smart, explainable algorithms.*
 
-#### 1. AI Summary
-Provides a concise summary of a research paper so that users can quickly understand its main ideas, objectives, methodology, and findings.
+![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Swing](https://img.shields.io/badge/GUI-Java%20Swing-blue?style=for-the-badge)
+![Maven](https://img.shields.io/badge/Build-Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
+![NetBeans](https://img.shields.io/badge/IDE-NetBeans-1B6AC6?style=for-the-badge&logo=apache-netbeans-ide&logoColor=white)
+![Status](https://img.shields.io/badge/Status-In%20Development-yellow?style=for-the-badge)
 
-#### 2. AI Keyword Extraction
-Automatically identifies important keywords and key concepts from a research paper. This helps users understand the main topics and improves paper organization and searching.
+</div>
 
-#### 3. AI Citation Generator
-Generates properly formatted citations for research papers. The system is planned to support:
-- APA
-- IEEE
+---
 
-#### 4. AI Paper Recommendation
-Recommends potentially relevant research papers based on the user's selected papers, topics, keywords, or research interests.
+## 📑 Table of Contents
 
-### 🖥️ AI Module GUI
+- [Overview](#-overview)
+- [Features](#-features)
+- [Architecture](#️-architecture)
+- [GUI Components](#️-gui-components)
+- [Core Classes](#-core-classes-logic-layer)
+- [Design System](#-design-system)
+- [Integration Guide](#-integration-guide-for-teammates)
+- [How to Run](#️-how-to-run)
+- [Example Usage](#-example-usage)
+- [Limitations & Roadmap](#️-limitations--roadmap)
+- [Tech Stack](#️-tech-stack)
+- [Author](#-author)
 
-The AI Features module includes the following user-interface components:
+---
 
-- **AI Assistant Dashboard** — Central interface for accessing AI-powered research tools.
-- **AI Summary Panel** — Interface for generating and displaying paper summaries.
-- **Citation Panel** — Interface for generating and viewing formatted citations.
-- **Keyword Extraction Interface** — Interface for displaying extracted keywords.
-- **Paper Recommendation Interface** — Interface for displaying recommended research papers.
+## 📖 Overview
 
-### 🧩 Main Classes
+The **AI Features module** is Member 4's contribution to the **AI Powered Research Paper Organizer** — a Java desktop application that helps researchers manage, understand, and cite academic papers faster.
 
-The AI module is organized using separate classes for different responsibilities:
+This module answers one core question: *"I have a research paper — what can AI-style tools help me do with it in seconds?"*
 
-- `AIService` — Handles communication with the AI-related functionality.
-- `SummaryGenerator` — Responsible for generating research paper summaries.
-- `CitationGenerator` — Responsible for generating APA and IEEE citations.
-- `RecommendationEngine` — Responsible for recommending relevant research papers.
+> 💡 All algorithms here are intentionally **simple, transparent, and explainable** (frequency counts, keyword overlap, template formatting) rather than opaque ML black-boxes — ideal for an academic OOP project where the logic must be understandable and demonstrable.
 
-### 📌 Current Progress
+---
 
-- Designed the **AI Assistant Dashboard GUI** using Java Swing and NetBeans.
-- Created the navigation structure for AI-related features.
-- Added buttons and interface elements for AI Summary, Keyword Extraction, Citation Generation, and Paper Recommendation.
-- Integrated the AI module into the overall Research Paper Organizer dashboard structure.
+## ✨ Features
 
-### 🚀 Future Improvements
+<table>
+<tr>
+<td width="50%" valign="top">
 
-- Improve AI-generated summaries for different types of research papers.
-- Add more citation styles.
-- Improve keyword extraction accuracy.
-- Develop a more personalized paper recommendation system.
-- Add advanced AI-based research assistance.
-- Improve interaction between the AI module and the research paper database.
+### 📄 AI Summary
+Paste any paper's text and instantly get a short **extractive summary** — the most relevant opening sentences, pulled automatically.
 
-### 🛠️ Technologies Used
+</td>
+<td width="50%" valign="top">
 
-- Java
-- Java Swing
-- Object-Oriented Programming (OOP)
-- NetBeans IDE
-- Git & GitHub
-- AI-based processing
+### 🏷️ Keyword Extraction
+Automatically surfaces the **most frequent, meaningful terms** in a paper, filtering out common stopwords — adjustable from 3 to 10 keywords.
 
-### 🎯 Contribution
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
 
-The main contribution of Member 4 is the design and development of the **AI-powered research assistance module**, including its GUI structure, AI feature organization, and supporting Java classes.
+### 📝 Citation Generator
+Fill in Author, Title, Year, and Journal — get a correctly formatted **APA** or **IEEE** citation instantly, ready to copy.
+
+</td>
+<td width="50%" valign="top">
+
+### 🔗 Paper Recommendation
+Select a paper and discover **related papers**, ranked by a keyword-overlap **match percentage**.
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart LR
+    subgraph GUI["🖥️ gui package"]
+        A[AIAssistantDashboard]
+        B[AISummaryPanel]
+        C[AICitationGeneratorPanel]
+        D[AIKeywordExtractionPanel]
+        E[AIRecommendationPanel]
+    end
+
+    subgraph LOGIC["🧠 ai package"]
+        F[AIService]
+        G[SummaryGenerator]
+        H[CitationGenerator]
+        I[KeywordExtractor]
+        J[RecommendationEngine]
+        K[Paper]
+    end
+
+    A --> B & C & D & E
+    B --> F
+    C --> F
+    D --> F
+    E --> F
+    F --> G & H & I & J
+    G & H & I & J --> K
+```
+
+**Design principle:** GUI panels never call the generator/extractor classes directly — everything routes through `AIService`, the single point of contact for the rest of the team's codebase.
+
+---
+
+## 🖥️ GUI Components
+
+| Screen | File | Accent Color |
+|---|---|:---:|
+| 🏠 AI Assistant Dashboard *(main window, sidebar navigation)* | `AIAssistantDashboard.java` | 🔵 Navy |
+| 📄 Summary Panel | `AISummaryPanel.java` | 🟣 Purple |
+| 📝 Citation Panel | `AICitationGeneratorPanel.java` | 🟢 Teal |
+| 🏷️ Keyword Extraction Panel | `AIKeywordExtractionPanel.java` | 🟠 Coral |
+| 🔗 Recommendation Panel | `AIRecommendationPanel.java` | 🩷 Pink |
+
+All panels live inside the Dashboard's `CardLayout`, so users switch features from one sidebar without opening separate windows.
+
+---
+
+## 🧠 Core Classes (Logic Layer)
+
+| Class | Responsibility |
+|---|---|
+| `Paper` | Data model for a research paper — title, author, year, journal, content |
+| `SummaryGenerator` | Extractive summarization (first N sentences) |
+| `KeywordExtractor` | Frequency-based keyword extraction with stopword filtering |
+| `CitationGenerator` | APA / IEEE citation string formatting |
+| `RecommendationEngine` | Keyword-overlap similarity scoring between papers |
+| `AIService` | 🔑 **Facade** — the single entry point the rest of the app should use |
+
+<details>
+<summary>📂 Package structure</summary>
+
+```
+src/main/java/
+└── com/mycompany/
+    ├── ai/
+    │   ├── Paper.java
+    │   ├── SummaryGenerator.java
+    │   ├── CitationGenerator.java
+    │   ├── KeywordExtractor.java
+    │   ├── RecommendationEngine.java
+    │   └── AIService.java
+    └── gui/
+        ├── AIAssistantDashboard.java
+        ├── AISummaryPanel.java
+        ├── AICitationGeneratorPanel.java
+        ├── AIKeywordExtractionPanel.java
+        └── AIRecommendationPanel.java
+```
+
+</details>
+
+---
+
+## 🎨 Design System
+
+| Element | Style |
+|---|---|
+| Sidebar | Solid navy (`#0C447C`), white text |
+| Header | Light blue, profile avatar top-right |
+| Summary theme | Purple (`#534AB7`) |
+| Citation theme | Teal (`#0F6E56`) |
+| Keyword theme | Coral (`#993C1D`) |
+| Recommendation theme | Pink (`#993556`) |
+
+Each feature keeps a consistent accent color across its button, output panel, and sidebar icon — so users always know which tool they're in at a glance.
+
+---
+
+## 🔌 Integration Guide (for teammates)
+
+> This section exists so any team member can plug their module into this one without reading through the full source.
+
+- **🙋 Profile module owner:** `AIAssistantDashboard` exposes a public hook:
+  ```java
+  dashboard.setOnProfileClick(() -> {
+      new ProfileFrame().setVisible(true); // your own window/panel
+  });
+  ```
+  No need to touch this file — just call this method from your integration code.
+
+- **📚 Paper Management module owner:** `AIRecommendationPanel` currently uses `createSampleData()` (4 placeholder papers). Replace this call with your real paper list once ready:
+  ```java
+  // Replace:
+  allPapers = createSampleData();
+  // With:
+  allPapers = paperManagementService.getAllPapers();
+  ```
+
+- **📦 Shared `Paper` model:** If Paper Management already has its own `Paper` class, use that one instead — just make sure it exposes `getTitle()`, `getAuthor()`, `getYear()`, `getJournal()`, `getContent()`.
+
+---
+
+## ▶️ How to Run
+
+```bash
+1. Open the project in NetBeans
+2. Navigate to: gui/AIAssistantDashboard.java
+3. Right-click → Run File   (or press Shift + F6)
+```
+
+A window opens with the navy sidebar — click through Summary, Citation, Keyword Extraction, and Recommendation to test each feature.
+
+---
+
+## 🧪 Example Usage
+
+<details>
+<summary>📄 Summary — sample input/output</summary>
+
+**Input:** *(pasted paper text, 200+ words)*
+**Output:** First 3 sentences extracted as a concise summary.
+
+</details>
+
+<details>
+<summary>📝 Citation — sample input/output</summary>
+
+**Input:**
+```
+Author: J. Smith | Title: Deep Learning for NLP | Year: 2023 | Journal: IEEE Access
+```
+
+**APA:** `J. Smith (2023). Deep Learning for NLP. IEEE Access.`
+**IEEE:** `[1] J. Smith, "Deep Learning for NLP," IEEE Access, 2023.`
+
+</details>
+
+<details>
+<summary>🏷️ Keyword Extraction — sample output</summary>
+
+`machine learning` `neural network` `deep learning` `data` `training`
+
+</details>
+
+---
+
+## ⚠️ Limitations & Roadmap
+
+This module intentionally uses **simple, explainable algorithms** appropriate for a 2nd-year OOP course — not production ML models.
+
+| Current Approach | ✅ Done | 🚀 Future Upgrade |
+|---|:---:|---|
+| Extractive summarization (first N sentences) | ✅ | Abstractive summarization via NLP model |
+| Frequency-based keywords | ✅ | TF-IDF or transformer-based extraction |
+| Keyword-overlap recommendations | ✅ | Embedding/vector similarity |
+| Manual citation field entry | ✅ | Auto metadata extraction from PDF |
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Language | Java |
+| GUI | Java Swing |
+| Build Tool | Maven |
+| IDE | NetBeans |
+
+---
+
+<div align="center">
+
+## 👤 Author
+
+**Member 4** — AI Features Module
+*Part of the AI Powered Research Paper Organizer team project*
+
+</div>

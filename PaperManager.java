@@ -13,79 +13,15 @@ public class PaperManager {
     private static final String DATA_FILE = DATA_DIR + File.separator + "papers.dat";
     private static final String REPO_DIR = DATA_DIR + File.separator + "repository";
 
-    public PaperManager() {
-        papers = new ArrayList<>();
-        nextId = 1;
+   public PaperManager() {
+    papers = new ArrayList<>();
+    nextId = 1;
 
-        ensureDirs();
-        loadPapers();
+    ensureDirs();
+    loadPapers();
+}
 
-        if (papers.isEmpty()) {
-            seedSampleData();
-        }
-    }
-
-    private void seedSampleData() {
-        try {
-            addPaper(
-                    "Deep Learning for NLP Applications",
-                    "J. Smith, A. Lee",
-                    "2023",
-                    "IEEE Access",
-                    "deep learning, NLP, transformers",
-                    "",
-                    null,
-                    null
-            );
-
-            addPaper(
-                    "A Survey on Blockchain Technology",
-                    "R. Kumar, P. Singh",
-                    "2022",
-                    "Springer",
-                    "blockchain, distributed ledger, security",
-                    "",
-                    null,
-                    null
-            );
-
-            addPaper(
-                    "Machine Learning in Healthcare",
-                    "M. Brown, T. White",
-                    "2021",
-                    "Elsevier",
-                    "machine learning, healthcare, diagnostics",
-                    "",
-                    null,
-                    null
-            );
-
-            addPaper(
-                    "Quantum Computing: An Overview",
-                    "L. Johnson",
-                    "2020",
-                    "ACM Computing Surveys",
-                    "quantum computing, qubits, algorithms",
-                    "",
-                    null,
-                    null
-            );
-
-            addPaper(
-                    "Internet of Things Security Challenges",
-                    "S. Ahmad, K. Khan",
-                    "2023",
-                    "IEEE IoT Journal",
-                    "IoT, security, privacy",
-                    "",
-                    null,
-                    null
-            );
-
-        } catch (IOException e) {
-            System.err.println("Failed to seed sample data: " + e.getMessage());
-        }
-    }
+   
 
     private void ensureDirs() {
         new File(DATA_DIR).mkdirs();
@@ -93,8 +29,7 @@ public class PaperManager {
     }
 
     /**
-     * Original-compatible addPaper method.
-     * Creates an unprotected paper.
+     * Original-compatible addPaper method. Creates an unprotected paper.
      */
     public Paper addPaper(
             String title,
@@ -120,8 +55,8 @@ public class PaperManager {
     /**
      * Adds a paper with optional PDF password protection.
      *
-     * @param pdfPasswordHash SHA-256 hash of the application password,
-     *                        or null for no password protection.
+     * @param pdfPasswordHash SHA-256 hash of the application password, or null
+     * for no password protection.
      */
     public Paper addPaper(
             String title,
@@ -161,8 +96,7 @@ public class PaperManager {
     }
 
     /**
-     * Original-compatible editPaper method.
-     * Keeps existing password protection.
+     * Original-compatible editPaper method. Keeps existing password protection.
      */
     public boolean editPaper(
             int id,
@@ -277,11 +211,11 @@ public class PaperManager {
 
     private String copyPdfToRepo(File source, int id) throws IOException {
 
-        String safeName =
-                "paper_" +
-                id +
-                "_" +
-                source.getName().replaceAll("[^a-zA-Z0-9._-]", "_");
+        String safeName
+                = "paper_"
+                + id
+                + "_"
+                + source.getName().replaceAll("[^a-zA-Z0-9._-]", "_");
 
         Path target = Paths.get(REPO_DIR, safeName);
 
@@ -303,9 +237,9 @@ public class PaperManager {
             return;
         }
 
-        try (ObjectInputStream ois =
-                     new ObjectInputStream(
-                             new FileInputStream(f))) {
+        try (ObjectInputStream ois
+                = new ObjectInputStream(
+                        new FileInputStream(f))) {
 
             papers = (List<Paper>) ois.readObject();
 
@@ -328,25 +262,25 @@ public class PaperManager {
         } catch (Exception e) {
 
             System.err.println(
-                    "Failed to load paper data: " +
-                    e.getMessage()
+                    "Failed to load paper data: "
+                    + e.getMessage()
             );
         }
     }
 
     private void savePapers() {
 
-        try (ObjectOutputStream oos =
-                     new ObjectOutputStream(
-                             new FileOutputStream(DATA_FILE))) {
+        try (ObjectOutputStream oos
+                = new ObjectOutputStream(
+                        new FileOutputStream(DATA_FILE))) {
 
             oos.writeObject(papers);
 
         } catch (IOException e) {
 
             System.err.println(
-                    "Failed to save paper data: " +
-                    e.getMessage()
+                    "Failed to save paper data: "
+                    + e.getMessage()
             );
         }
     }

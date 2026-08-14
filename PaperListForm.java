@@ -110,14 +110,8 @@ public class PaperListForm extends JFrame {
         sidebar.add(buildNavButton("Paper List", true, this::refreshTable));
         sidebar.add(Box.createVerticalGlue());
 
-        JSeparator sep = new JSeparator();
-        sep.setForeground(new Color(0x2A, 0x3B, 0x5C));
-        sep.setMaximumSize(new Dimension(1000, 1));
-        sidebar.add(sep);
-        sidebar.add(Box.createVerticalStrut(10));
-        sidebar.add(buildNavButton("Logout", false, this::onLogout, new LogoutIcon(new Color(0xC7, 0xD0, 0xE0))));
-
         return sidebar;
+    
     }
 
     private JPanel buildProfileBlock() {
@@ -254,14 +248,14 @@ public class PaperListForm extends JFrame {
         return footer;
     }
 
-private void refreshTable() {
+    private void refreshTable() {
         tableModel.setRowCount(0);
         rowPapers.clear();
         List<Paper> papers = controller.getAllPapers();
         int displayNumber = 1;
         for (Paper p : papers) {
             tableModel.addRow(new Object[]{
-                    displayNumber, p.getTitle(), p.getAuthor(), p.getYear(), p.getCategory(), ""
+                displayNumber, p.getTitle(), p.getAuthor(), p.getYear(), p.getCategory(), ""
             });
             rowPapers.add(p);
             displayNumber++;
@@ -269,21 +263,30 @@ private void refreshTable() {
         totalLabel.setText("Total Papers: " + papers.size());
     }
 
-    /** Column 0 is a display-only sequential number (1, 2, 3...) — never the real Paper ID.
-     *  The actual ID always comes from rowPapers, so Add/Edit/Delete/View/Open PDF are
-     *  unaffected regardless of what number is shown in that column. */
+    /**
+     * Column 0 is a display-only sequential number (1, 2, 3...) — never the
+     * real Paper ID. The actual ID always comes from rowPapers, so
+     * Add/Edit/Delete/View/Open PDF are unaffected regardless of what number is
+     * shown in that column.
+     */
     private int getSelectedId() {
         int viewRow = table.getSelectedRow();
-        if (viewRow == -1) return -1;
+        if (viewRow == -1) {
+            return -1;
+        }
         int modelRow = table.convertRowIndexToModel(viewRow);
         return rowPapers.get(modelRow).getId();
     }
 
-    /** viewRow is the row index as seen by the JTable (may differ from the model if sorted). */
+    /**
+     * viewRow is the row index as seen by the JTable (may differ from the model
+     * if sorted).
+     */
     private int idForRow(int viewRow) {
         int modelRow = table.convertRowIndexToModel(viewRow);
         return rowPapers.get(modelRow).getId();
     }
+
     private void onAdd() {
         UploadPaperForm form = new UploadPaperForm(this, controller, null);
         form.setVisible(true);

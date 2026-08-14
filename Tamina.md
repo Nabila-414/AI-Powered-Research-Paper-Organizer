@@ -1,20 +1,15 @@
 import java.time.LocalDate;
 
-/**
- * Book.java
- * একটি বইকে represent করে - এটাই মূল data model যা
- * DatabaseManager, StatisticsManager, ReadingPlanner, DashboardManager
- * সবার মধ্যে ব্যবহার হবে।
- */
+
 public class Book {
     private int id;
     private String title;
     private String author;
     private int totalPages;
     private int pagesRead;
-    private String status;      // "Not Started", "Reading", "Completed"
+    private String status;      
     private LocalDate dateAdded;
-    private LocalDate targetDate; // Reading Planner এর জন্য deadline
+    private LocalDate targetDate; 
 
     public Book(int id, String title, String author, int totalPages) {
         this.id = id;
@@ -27,7 +22,6 @@ public class Book {
         this.targetDate = null;
     }
 
-    // ---------- Getters & Setters ----------
     public int getId() { return id; }
 
     public String getTitle() { return title; }

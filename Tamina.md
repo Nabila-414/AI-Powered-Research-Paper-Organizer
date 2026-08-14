@@ -37,7 +37,6 @@ public class Book {
         if (pagesRead > totalPages) pagesRead = totalPages;
         this.pagesRead = pagesRead;
 
-        // progress অনুযায়ী status auto-update
         if (this.pagesRead == 0) {
             this.status = "Not Started";
         } else if (this.pagesRead >= totalPages) {
@@ -60,7 +59,6 @@ public class Book {
         return (pagesRead * 100.0) / totalPages;
     }
 
-    // CSV format এ save করার জন্য (DatabaseManager ব্যবহার করবে)
     public String toCsvLine() {
         return id + "," + title + "," + author + "," + totalPages + "," +
                 pagesRead + "," + status + "," + dateAdded + "," +

@@ -127,798 +127,311 @@ structure before merging.
 - Password rule: minimum 6 characters. Username rule: minimum 4 characters.
 - This uses no external libraries — pure Java + Java Swing, so it will run on
   any machine with JDK 8+ installed.
+#          Member 2
+# 📚 Research Paper Management System
 
+A Java Swing desktop application for managing research papers through a simple graphical interface. The system supports adding, editing, deleting, viewing, and opening research-paper PDFs, with optional application-level password protection for PDFs.
 
+## ✨ Features
 
-#         MEMBER 2
+* ➕ **Add Paper** — add a research paper with title, authors, published year, venue, keywords, abstract, and PDF.
+* ✏️ **Edit Paper** — update existing paper information and optionally replace its PDF.
+* 🗑️ **Delete Paper** — remove a paper and its stored PDF from the application repository.
+* 👁️ **View Paper Details** — view metadata, PDF information, dates, and abstract.
+* 📄 **Open PDF** — open the stored PDF from the application.
+* 🔐 **Optional PDF Password Protection** — protect a paper at the application level with a password.
+* 🔑 **Password Hashing** — passwords are stored as SHA-256 hashes rather than plain text.
+* 💾 **Persistent Storage** — paper records are serialized to a local `.dat` file so changes survive application restarts.
+* 📁 **Local PDF Repository** — uploaded PDFs are copied into the application's local repository.
+* 🎨 **Colorful Swing GUI** — blue-themed interface with cards, action buttons, PDF indicators, and responsive hover effects.
 
-# AI-Powered Research Paper Organizer
+## 🧩 Research Paper Management Module
 
-## Research Paper Management Module
+This project implements the Research Paper Management module with the following main classes and forms:
 
-A Java-based module for managing research papers as part of the **AI-Powered Research Paper Organizer** CEP Mini Project for the Object-Oriented Programming Lab.
+### Core Classes
 
----
+| Class             | Responsibility                                                                                |
+| ----------------- | --------------------------------------------------------------------------------------------- |
+| `Paper`           | Represents a research paper and stores its metadata, PDF path, dates, and password hash.      |
+| `PaperManager`    | Handles paper storage, IDs, PDF repository operations, loading/saving, editing, and deletion. |
+| `PaperController` | Connects the GUI with the manager and handles validation, password hashing, and PDF opening.  |
 
-## 📌 Project Information
+### GUI Forms
 
-| Item           | Details                                |
-| -------------- | -------------------------------------- |
-| Project        | AI-Powered Research Paper Organizer    |
-| Module         | Research Paper Management              |
-| Course         | Object-Oriented Programming Lab        |
-| Course Code    | CSE222                                 |
-| Problem Domain | EdTech                                 |
-| Technology     | Java                                   |
-| GUI Framework  | Java Swing                             |
-| Architecture   | Model – Manager – Controller – GUI     |
-| Storage        | Local serialized data + PDF repository |
+| Form               | Purpose                                                                        |
+| ------------------ | ------------------------------------------------------------------------------ |
+| `PaperListForm`    | Main dashboard showing the paper list and actions.                             |
+| `UploadPaperForm`  | Add or edit paper information and select a PDF.                                |
+| `PaperDetailsForm` | Displays complete information about a selected paper and provides PDF opening. |
 
----
+## 🖥️ Main Interface
 
-# 1. Module Overview
+The main Paper List interface provides:
 
-The **Research Paper Management Module** is responsible for creating, maintaining, viewing, and accessing research paper records.
-
-The module provides five major functions:
-
-* Add Paper
-* Edit Paper
-* Delete Paper
-* View Paper Details
-* Open PDF
-
-The implementation uses Java Swing for the graphical user interface and separates the paper model, business/persistence logic, controller logic, and GUI components.
-
----
-
-# 2. Main Features
-
-## ➕ Add Paper
-
-Users can create a new research paper record by providing:
-
+* Paper ID
 * Title
-* Author
-* Year
-* Venue/Category
-* Abstract
-* Optional PDF file
-
-The system automatically assigns a unique ID and records the date on which the paper was added.
-
-The `PaperManager` creates the paper object, stores it in the paper collection, and saves the updated data.
-
----
-
-## ✏️ Edit Paper
-
-Existing paper information can be modified.
-
-The edit interface uses the same `UploadPaperForm` used for adding papers. When an existing `Paper` object is supplied, the form switches to edit mode and loads its existing information.
-
-Users can modify:
-
-* Title
-* Author
-* Year
+* Authors
+* Published Year
 * Venue
-* Abstract
-* PDF file
+* Action controls
+* Total paper count
+* **Add New Paper** button
 
-The existing PDF can remain unchanged if a new PDF is not selected.
+Each paper provides actions for:
 
----
+* **View** — opens the paper details window.
+* **Edit** — opens the paper editing form.
+* **Delete** — removes the selected paper after confirmation.
+* **Open PDF** — opens the stored PDF and requests the application password when protection is enabled.
 
-## 🗑️ Delete Paper
+## 🔐 PDF Password Protection
 
-Users can select a paper and delete it.
+Password protection is **optional**.
 
-Before deletion, the system asks for confirmation:
+When adding a paper, the user can enable:
 
-> "Are you sure you want to delete this paper?"
+> **Protect PDF with password**
 
-If the paper has an associated PDF, the stored PDF is also removed from the repository before the paper record is deleted.
+If enabled, the password must be entered and confirmed.
 
----
+When editing an already protected paper:
 
-## 👁️ View Paper Details
+* Leaving the password fields blank keeps the existing password.
+* Entering a new password changes the password.
+* Disabling protection removes the application-level password requirement.
 
-The system provides a read-only details window for a selected paper.
+The application stores a **SHA-256 password hash**, not the plain-text password.
 
-The details include:
+> **Note:** This is application-level protection. The program asks for the password before opening the PDF; it does not modify the PDF's own encryption/password settings.
 
-* Title
-* Author
-* Year
-* Category/Venue
-* Date Added
-* PDF availability
-* Abstract
+## 💾 Data Persistence
 
-The details are displayed using the `PaperDetailsForm` Swing dialog.
-
----
-
-## 📄 Open PDF
-
-Users can open the PDF associated with a paper.
-
-Before opening the file, the controller checks:
-
-1. Whether the paper exists
-2. Whether a PDF is attached
-3. Whether the PDF file exists
-4. Whether the operating system supports opening the file
-
-The application then uses Java's `Desktop` API to open the PDF using the system's default viewer.
-
----
-
-# 3. System Architecture
-
-The module follows a layered structure:
-
-```text
-                    User
-                     │
-                     ▼
-              Java Swing GUI
-                     │
-                     ▼
-             PaperController
-                     │
-                     ▼
-              PaperManager
-                     │
-                     ▼
-                  Paper
-                     │
-                     ▼
-          Local Persistent Storage
-```
-
-### Layer Responsibilities
-
-### Paper — Model
-
-Represents a research paper and stores its information.
-
-### PaperManager — Management/Persistence Layer
-
-Responsible for:
-
-* Creating papers
-* Updating papers
-* Deleting papers
-* Finding papers
-* Returning all papers
-* Saving paper data
-* Loading saved data
-* Managing stored PDF files
-
-### PaperController — Controller Layer
-
-Responsible for:
-
-* Receiving requests from GUI
-* Validating user input
-* Calling `PaperManager`
-* Handling validation and I/O errors
-* Managing PDF opening requests
-
-The controller explicitly acts as the intermediary between GUI forms and `PaperManager`.
-
-### GUI Layer
-
-Provides the user interface through Java Swing.
-
----
-
-# 4. Class Structure
-
-## Paper
-
-```text
-Paper
---------------------------------
-- id : int
-- title : String
-- author : String
-- year : String
-- category : String
-- abstractText : String
-- pdfPath : String
-- dateAdded : String
---------------------------------
-+ getId()
-+ getTitle()
-+ setTitle()
-+ getAuthor()
-+ setAuthor()
-+ getYear()
-+ setYear()
-+ getCategory()
-+ setCategory()
-+ getAbstractText()
-+ setAbstractText()
-+ getPdfPath()
-+ setPdfPath()
-+ getDateAdded()
-+ hasPdf()
-+ toString()
-```
-
-The class implements `Serializable`, allowing paper objects to be stored and retrieved using Java object serialization.
-
----
-
-# 5. Main Classes
-
-## `Paper.java`
-
-The model class representing a single research paper.
-
-It contains the paper's identifying and descriptive information and provides getter/setter methods for appropriate attributes.
-
----
-
-## `PaperManager.java`
-
-Responsible for paper persistence and CRUD operations.
-
-It maintains a collection of `Paper` objects using an `ArrayList`.
-
-The class performs:
-
-```text
-addPaper()
-editPaper()
-deletePaper()
-getPaperById()
-getAllPapers()
-```
-
-It also manages local storage for paper records and PDF files.
-
----
-
-## `PaperController.java`
-
-Acts as the controller between the GUI and `PaperManager`.
-
-Main operations include:
-
-```text
-addPaper()
-editPaper()
-deletePaper()
-getPaperById()
-getAllPapers()
-openPdf()
-```
-
-## It also performs basic validation for required title and author fields.
-
-## `PaperListForm.java`
-
-The main application window.
-
-It provides:
-
-* Paper table
-* Sidebar navigation
-* Add Paper
-* Edit Paper
-* Delete Paper
-* View Paper Details
-* Open PDF
-* Logout
-* Paper count
-
-The table displays:
-
-```text
-ID
-Title
-Authors
-Published Year
-Venue
-Actions
-```
-
----
-
-## `UploadPaperForm.java`
-
-This is an important part of the implementation.
-
-Rather than having two separate Java classes for Add and Edit, the project uses **one reusable form** for both operations.
-
-```text
-UploadPaperForm
-       │
-       ├── existingPaper == null
-       │       ↓
-       │    Add Mode
-       │
-       └── existingPaper != null
-               ↓
-            Edit Mode
-```
-
-This reduces duplicated GUI code and demonstrates reusable design.
-
-The form contains fields for title, author, year, venue, abstract, and PDF selection.
-
----
-
-## `PaperDetailsForm.java`
-
-Provides a read-only dialog for viewing the complete details of a selected paper.
-
----
-
-## `Main.java`
-
-The application entry point.
-
-It initializes the system look and feel and launches the `PaperListForm` using Swing's event-dispatching mechanism.
-
----
-
-# 6. Data Persistence
-
-The application uses local file-based persistence.
+The application uses local serialized Java data storage.
 
 ```text
 paper_data/
-│
 ├── papers.dat
-│
 └── repository/
-       ├── paper_1_....pdf
-       ├── paper_2_....pdf
-       └── ...
+    ├── paper_1_example.pdf
+    ├── paper_2_example.pdf
+    └── ...
 ```
 
-`papers.dat` stores serialized paper records.
+### `papers.dat`
 
-The `repository` directory stores uploaded PDF files.
+Stores the serialized list of `Paper` objects, including their metadata, PDF path, dates, and password hash.
 
-The manager creates these directories when the application starts.
+### `repository/`
 
----
+Stores copies of uploaded PDF files. The application copies the selected PDF into this directory rather than relying only on the original external file location.
 
-# 7. PDF Management
+The data directory is created automatically when `PaperManager` starts.
 
-When a PDF is uploaded, the system copies it into the application's repository folder.
-
-The stored filename follows the pattern:
+## 🏗️ Application Flow
 
 ```text
-paper_<id>_<original_filename>.pdf
+                  Main.java
+                      │
+                      ▼
+              PaperListForm
+                      │
+                      ▼
+              PaperController
+                      │
+                      ▼
+               PaperManager
+                 /         \
+                ▼           ▼
+          papers.dat     repository/
+                            │
+                            ▼
+                         PDF files
 ```
 
-Special characters in the original filename are replaced with underscores.
-
-This allows the application to maintain a predictable local storage structure.
-
----
-
-# 8. Input Validation
-
-The controller validates the two required fields:
+### Add Paper
 
 ```text
-Title
-Author
-```
-
-If the title is empty:
-
-```text
-Title is required.
-```
-
-If the author is empty:
-
-```text
-Author is required.
-```
-
-The controller returns these messages to the GUI rather than directly displaying them, keeping validation logic separate from the interface.
-
----
-
-# 9. Exception Handling
-
-The module handles file-related errors using Java exception handling.
-
-For example, failures during PDF storage are caught and converted into an error message:
-
-```text
-Failed to save PDF file: <error message>
-```
-
-## PDF opening failures are also handled without terminating the application.
-
-# 10. OOP Concepts Demonstrated
-
-## Encapsulation
-
-The `Paper` attributes are declared private and accessed through public methods.
-
-Example:
-
-```java
-private String title;
-
-public String getTitle() {
-    return title;
-}
-
-public void setTitle(String title) {
-    this.title = title;
-}
-```
-
-## This is a direct implementation of encapsulation.
-
-## Abstraction
-
-The GUI does not directly perform the persistence operations.
-
-Instead:
-
-```text
-GUI
- ↓
-Controller
- ↓
-Manager
-```
-
-The user interface therefore does not need to know how paper data is serialized or how PDFs are copied to the repository.
-
----
-
-## Composition / Object Association
-
-`PaperController` contains a `PaperManager` instance:
-
-```java
-private final PaperManager manager;
-```
-
-This allows the controller to delegate paper-management operations to the manager.
-
----
-
-## Serialization
-
-The `Paper` class implements:
-
-```java
-Serializable
-```
-
-This allows paper objects to participate in Java object serialization for persistent storage.
-
----
-
-# 11. GUI Design
-
-The application uses Java Swing.
-
-The main interface contains a dark sidebar and a central paper table.
-
-Navigation includes:
-
-```text
-Paper List
-Add Paper
-Edit Paper
-Delete Paper
-View Paper Details
-Open PDF
-Logout
-```
-
-The interface also uses custom colors, buttons, vector icons, table styling, and a responsive layout based on Swing layout managers.
-
----
-
-# 12. User Workflow
-
-## Add Paper
-
-```text
-User
- ↓
-Add Paper
- ↓
-Enter Paper Information
- ↓
-Choose PDF (Optional)
- ↓
-Save
- ↓
+UploadPaperForm
+      ↓
 PaperController
- ↓
-Validate Input
- ↓
+      ↓
+Validate information
+      ↓
+Hash password (if enabled)
+      ↓
 PaperManager
- ↓
-Create Paper
- ↓
-Save Paper Data
- ↓
-Refresh Paper List
+      ↓
+Copy PDF to repository
+      ↓
+Save papers.dat
 ```
 
----
-
-## Edit Paper
-
-```text
-User
- ↓
-Select Paper
- ↓
-Edit
- ↓
-Existing Data Loaded
- ↓
-Modify Information
- ↓
-Save Changes
- ↓
-PaperController
- ↓
-PaperManager
- ↓
-Update Paper
- ↓
-Save Data
-```
-
----
-
-## Delete Paper
-
-```text
-User
- ↓
-Select Paper
- ↓
-Delete
- ↓
-Confirmation
- ↓
-PaperController
- ↓
-PaperManager
- ↓
-Delete PDF if applicable
- ↓
-Delete Paper
- ↓
-Save Data
-```
-
----
-
-## View Details
-
-```text
-User
- ↓
-Select Paper
- ↓
-View Details
- ↓
-PaperController
- ↓
-Retrieve Paper
- ↓
-PaperDetailsForm
- ↓
-Display Information
-```
-
----
-
-## Open PDF
-
-```text
-User
- ↓
-Select Paper
- ↓
-Open PDF
- ↓
-Check Paper
- ↓
-Check PDF
- ↓
-Check File
- ↓
-Desktop.open()
- ↓
-System PDF Viewer
-```
-
----
-
-# 13. Testing
-
-| Test Case                 | Expected Result                       |
-| ------------------------- | ------------------------------------- |
-| Add valid paper           | Paper is added                        |
-| Add paper without title   | `Title is required.`                  |
-| Add paper without author  | `Author is required.`                 |
-| Edit existing paper       | Paper information is updated          |
-| Edit nonexistent paper    | Appropriate error is returned         |
-| Delete existing paper     | Paper is removed                      |
-| Delete paper with PDF     | Paper and stored PDF are removed      |
-| View paper                | Details dialog appears                |
-| Open paper with valid PDF | PDF opens                             |
-| Open paper without PDF    | Error message appears                 |
-| Open missing PDF          | Error message appears                 |
-| Restart application       | Previously saved papers can be loaded |
-
----
-
-# 14. CEP Alignment
-
-The Research Paper Management module contributes to the CEP requirements through its practical application of software design and engineering concepts.
-
-### EP1 — Depth of Knowledge
-
-The module applies:
-
-* Java
-* Object-oriented design
-* Encapsulation
-* Serialization
-* Exception handling
-* GUI programming
-* File handling
-* MVC-style separation
-
-### EP2 — Range of Conflicting Requirements
-
-The implementation must balance:
-
-* User convenience and input validation
-* Persistent storage and application simplicity
-* PDF accessibility and file error handling
-* Reusable GUI components and maintainability
-
-### EP3 — Depth of Analysis
-
-The design separates:
-
-```text
-Model
-Manager
-Controller
-GUI
-```
-
-This separation makes responsibilities clearer and allows the system to be maintained and extended.
-
-### EP6 — Stakeholder Involvement
-
-The interface is designed around common research-paper management tasks such as adding, editing, deleting, viewing, and opening papers.
-
----
-
-# 15. Repository Structure
-
-```text
-AI-Powered-Research-Paper-Organizer/
-│
-├── README.md
-│
-├── src/
-│   └── main/
-│       └── java/
-│           └── com/
-│               └── mycompany/
-│                   └── papermanager/
-│                       ├── Main.java
-│                       ├── Paper.java
-│                       ├── PaperManager.java
-│                       ├── PaperController.java
-│                       ├── PaperListForm.java
-│                       ├── UploadPaperForm.java
-│                       └── PaperDetailsForm.java
-│
-├── paper_data/
-│   ├── papers.dat
-│   └── repository/
-│
-└── docs/
-    ├── uml/
-    └── screenshots/
-```
-
-> `paper_data/` contains runtime-generated application data and should generally not be committed to GitHub unless your instructor specifically requires sample data.
-
----
-
-# 16. Module Responsibilities
-
-### Member 2 — Research Paper Management
-
-The module covers:
-
-```text
-✓ Add Paper
-✓ Edit Paper
-✓ Delete Paper
-✓ View Paper Details
-✓ Open PDF
-```
-
-### Main implementation classes
-
-```text
-Paper
-PaperManager
-PaperController
-```
-
-### GUI classes
+### Edit Paper
 
 ```text
 PaperListForm
+      ↓
 UploadPaperForm
-PaperDetailsForm
+      ↓
+PaperController
+      ↓
+PaperManager
+      ↓
+Update Paper object
+      ↓
+Save papers.dat
 ```
 
----
-
-# 17. Future Improvements
-
-Potential improvements for future versions include:
-
-* Advanced paper searching
-* Filtering by category or year
-* Duplicate-paper detection
-* AI-based paper categorization
-* Automatic metadata extraction
-* Citation management
-* Cloud-based PDF storage
-* Database integration
-* User authentication and role-based access
-* AI-powered paper recommendations
-
-These features are not part of the current Research Paper Management implementation.
-
----
-
-# 18. Project Status
-
-**Status:** Research Paper Management Module — Implemented
-
-Current supported operations:
+### Delete Paper
 
 ```text
-Add → Edit → Delete → View → Open PDF
+PaperListForm
+      ↓
+Confirm deletion
+      ↓
+PaperController
+      ↓
+PaperManager
+      ↓
+Delete stored PDF
+      ↓
+Remove Paper
+      ↓
+Save papers.dat
 ```
 
----
+### Open PDF
 
-## Author
+```text
+PaperListForm / PaperDetailsForm
+              ↓
+       PaperController
+              ↓
+      Check PDF existence
+              ↓
+     Password protected?
+        /            \
+      No              Yes
+      ↓                ↓
+ Open PDF       Ask for password
+                       ↓
+                Verify SHA-256 hash
+                       ↓
+                   Open PDF
+```
 
-**Member 2**
+## 🛠️ Technologies Used
 
-Research Paper Management Module
-AI-Powered Research Paper Organizer
-CSE222 — Object-Oriented Programming Lab
+* **Java**
+* **Java Swing** — desktop GUI
+* **Java Serialization** — local paper-data persistence
+* **Java NIO / File API** — PDF file and repository management
+* **SHA-256** — application-level password hashing
+* **NetBeans IDE** — development environment
+
+## 📂 Project Structure
+
+```text
+Research Paper Management System/
+│
+├── Main.java
+├── Paper.java
+├── PaperController.java
+├── PaperManager.java
+├── PaperListForm.java
+├── PaperDetailsForm.java
+└── UploadPaperForm.java
+```
+
+At runtime, the application creates:
+
+```text
+paper_data/
+├── papers.dat
+└── repository/
+```
+
+## ▶️ How to Run
+
+### Using NetBeans
+
+1. Open the project in **NetBeans IDE**.
+2. Make sure all Java files are inside the correct package:
+
+```text
+com.mycompany.papermanager
+```
+
+3. Build the project.
+4. Run `Main.java`.
+5. The **Paper List** window will open.
+6. Use **Add New Paper** to add your first research paper.
+
+## 📋 Paper Information
+
+Each `Paper` object can contain:
+
+* ID
+* Title
+* Author(s)
+* Published Year
+* Venue/Category
+* Keywords
+* Abstract
+* PDF Path
+* Date Added
+* Last Updated
+* Optional PDF Password Hash
+
+## 🆔 Paper IDs
+
+The application maintains an internal unique ID for each paper. New papers receive the next available ID. Deleted IDs are not reused automatically, which helps preserve stable references for Edit, Delete, View, and PDF operations.
+
+The displayed table serial number can be treated separately from the internal paper ID if a sequential `1, 2, 3...` display is desired.
+
+## 🎯 Project Objectives
+
+* Provide a centralized desktop interface for organizing research papers.
+* Make paper metadata easy to add, edit, view, and manage.
+* Keep uploaded PDFs inside a local application repository.
+* Preserve paper information between application sessions.
+* Provide optional application-level protection for sensitive PDFs.
+* Apply Object-Oriented Programming concepts through a modular Java design.
+
+## 🔮 Future Improvements
+
+Possible future extensions include:
+
+* 🔎 Paper search and filtering
+* 🏷️ Advanced keyword/tag management
+* 📊 Research statistics and dashboards
+* 🗃️ Category-based organization
+* ☁️ Cloud backup/synchronization
+* 👥 Multi-user authentication
+* 📥 Import/export functionality
+* 📝 Rich abstract and notes management
+
+## 👨‍💻 Module Contribution
+
+**Member 2(Md Azimul Islam Sarker-377) — Research Paper Management**
+
+Responsible for the paper-management functionality, including:
+
+* Paper data model
+* Paper management logic
+* Paper controller
+* Add Paper interface
+* Edit Paper interface
+* Delete Paper functionality
+* Paper Details interface
+* PDF opening
+* Local paper persistence
+* Optional PDF password protection
+
+##
+
+
 
 
 # AI Powered Research Paper Organizer - Member 3 Part

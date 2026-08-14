@@ -166,6 +166,8 @@ This project implements the Research Paper Management module with the following 
 | `PaperDetailsForm` | Displays complete information about a selected paper and provides PDF opening. |
 
 ## 🖥️ Main Interface
+<img width="1365" height="767" alt="image" src="https://github.com/user-attachments/assets/63c10b18-2f16-400b-813f-f0e3cce02a69" />
+
 
 The main Paper List interface provides:
 
@@ -179,6 +181,8 @@ The main Paper List interface provides:
 * **Add New Paper** button
 
 Each paper provides actions for:
+<img width="1356" height="767" alt="image" src="https://github.com/user-attachments/assets/05b22ce1-44fa-45ed-a226-896b741ef518" />
+
 
 * **View** — opens the paper details window.
 * **Edit** — opens the paper editing form.
@@ -186,12 +190,20 @@ Each paper provides actions for:
 * **Open PDF** — opens the stored PDF and requests the application password when protection is enabled.
 
 ## 🔐 PDF Password Protection
+<img width="1365" height="767" alt="image" src="https://github.com/user-attachments/assets/68952d0a-8612-4798-a3ed-9f56302f2ff4" />
+<img width="1360" height="767" alt="image" src="https://github.com/user-attachments/assets/f21f6c4d-02b9-4e64-bdcb-4888ab15b59a" />
+
+
 
 Password protection is **optional**.
+<img width="1351" height="767" alt="image" src="https://github.com/user-attachments/assets/8eeeb766-9a18-4f54-820e-c8e12d6e39d6" />
+
 
 When adding a paper, the user can enable:
 
 > **Protect PDF with password**
+> <img width="1336" height="767" alt="image" src="https://github.com/user-attachments/assets/f6f5a87b-0857-4175-894f-5dbf6bdd5ffd" />
+
 
 If enabled, the password must be entered and confirmed.
 
@@ -208,6 +220,8 @@ The application stores a **SHA-256 password hash**, not the plain-text password.
 ## 💾 Data Persistence
 
 The application uses local serialized Java data storage.
+<img width="1210" height="672" alt="image" src="https://github.com/user-attachments/assets/b6137b0c-94db-47ff-9d58-3f5be24fef4a" />
+
 
 ```text
 paper_data/
@@ -351,22 +365,6 @@ paper_data/
 ├── papers.dat
 └── repository/
 ```
-
-## ▶️ How to Run
-
-### Using NetBeans
-
-1. Open the project in **NetBeans IDE**.
-2. Make sure all Java files are inside the correct package:
-
-```text
-com.mycompany.papermanager
-```
-
-3. Build the project.
-4. Run `Main.java`.
-5. The **Paper List** window will open.
-6. Use **Add New Paper** to add your first research paper.
 
 ## 📋 Paper Information
 
